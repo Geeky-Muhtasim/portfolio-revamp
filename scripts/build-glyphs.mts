@@ -624,6 +624,18 @@ async function main() {
     }),
   );
   writeFileSync(STROKES_OUT, JSON.stringify(Object.fromEntries(Object.entries(glyphs).map(([id, g]) => [id, g.strokes]))));
+
+  // The seal doubles as the site icon: a jade square with the initials cut out.
+  const word = sealWords[0]!;
+  const ys = Object.values(sealGlyphs).flatMap((d) => [...d.matchAll(/-?\d+ (-?\d+)/g)].map((m) => Number(m[1])));
+  const top = Math.min(...ys), bottom = Math.max(...ys);
+  const s = Math.min(70 / word.advance, 52 / (bottom - top));
+  const tx = 50 - (word.advance * s) / 2, ty = 50 - ((top + bottom) / 2) * s;
+  const letters = word.glyphs.map((g) => `<path transform="translate(${g.x} 0)" d="${sealGlyphs[g.id]}"/>`).join("");
+  writeFileSync(
+    "src/app/icon.svg",
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><mask id="m"><rect width="100" height="100" fill="#fff"/><g transform="translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${s.toFixed(4)})">${letters}</g></mask><rect width="100" height="100" rx="8" fill="#1fa37a" mask="url(#m)"/></svg>\n`,
+  );
   const strokeCount = Object.values(glyphs).reduce((s, g) => s + g.strokes.length, 0);
   console.log(`wrote ${OUT}: ${Object.keys(glyphs).length} glyphs, ${strokeCount} strokes, ${Object.keys(phrases).length} phrases`);
 }

@@ -73,6 +73,11 @@
   opacity: 0;
   pointer-events: none;
 }
+/* Beneath the Threshold nothing is painted: it is covered, and inert, until the ceremony ends. */
+html[data-phase="threshold"] main {
+  visibility: hidden;
+}
+
 /* A returning visitor in the same session: no ceremony. */
 html[data-phase="returning"] .threshold {
   display: none;
@@ -90,9 +95,10 @@ html[data-phase="returning"] .vow-lines {
 .threshold-word {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  /* The one word on the first screen, and its largest text, so it is what paints first. */
+  font-size: clamp(1.75rem, 1.4rem + 1vw, 2.25rem);
   font-weight: 500;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: var(--paper);
 }
 
