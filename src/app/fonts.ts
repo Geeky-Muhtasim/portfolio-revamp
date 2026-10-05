@@ -1,14 +1,19 @@
-import { IBM_Plex_Mono, IBM_Plex_Sans, Shippori_Mincho_B1, Tiro_Bangla } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans, Tiro_Bangla } from "next/font/google";
+import localFont from "next/font/local";
 
 /*
- * next/font downloads and subsets these at build time and serves them from
- * this site's own origin: no third-party requests at runtime.
+ * Every font is served from this site's own origin: no third-party
+ * requests at runtime. next/font downloads and subsets the Google families
+ * at build time. Shippori Mincho B1 is a Japanese family whose stock CSS
+ * runs to hundreds of slices, so it is a committed Latin-only subset
+ * instead (scripts/fetch-fonts.mjs, SIL Open Font License).
  */
-export const shippori = Shippori_Mincho_B1({
-  weight: ["500", "700"],
-  subsets: ["latin"],
+export const shippori = localFont({
+  src: "./fonts/shippori-mincho-b1-500-latin.woff2",
+  weight: "500",
   display: "swap",
   variable: "--font-shippori",
+  fallback: ["Times New Roman", "serif"],
 });
 
 export const plexSans = IBM_Plex_Sans({
