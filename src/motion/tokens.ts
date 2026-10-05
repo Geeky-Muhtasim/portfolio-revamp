@@ -6,8 +6,8 @@ export const motion = {
     slashMs: 80,
     splitMs: 250,
     angleDeg: 20,
-    /** How far each half travels and tilts during the split. */
-    splitTravel: 0.14,
+    /** Each half travels this fraction of the viewport diagonal and tilts this far. */
+    splitTravel: 0.4,
     splitTiltDeg: 1.2,
   },
   easeExpoOut: "cubic-bezier(0.16, 1, 0.3, 1)",
