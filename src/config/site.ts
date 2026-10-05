@@ -83,6 +83,15 @@ export const blades: ReadonlyArray<{ id: BladeId; numeral: string; label: string
   },
 ];
 
+/** Small interface words. */
+export const ui = {
+  bladePrefix: "Blade",
+  backToBlades: "Back to the blades",
+  sound: "Sound",
+  soundOn: "on",
+  soundOff: "off",
+} as const;
+
 export const sceneLines = {
   trainingLog: "Every day. Even when no one is watching.",
   trials: "Things broke. I learned why.",

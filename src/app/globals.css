@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "../styles/tokens.css";
+@import "../styles/scenes.css";
 
 @theme inline {
   --color-ink: var(--ink);

@@ -1,0 +1,540 @@
+/*
+ * Scenes, the cut, the cursor, breath. Ink dominates; jade only where
+ * something decisive happens. Everything reads correctly with no
+ * JavaScript: html[data-phase] states only hide what motion will reveal.
+ */
+
+/* ---------- shared scene frame ---------- */
+
+.scene {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--ink);
+  isolation: isolate;
+}
+.scene:focus {
+  outline: none;
+}
+
+.scene-ink {
+  position: absolute;
+  inset: -6%;
+  z-index: -1;
+  background: url("/ink/placeholder-wash.svg") center / cover no-repeat;
+  opacity: 0.07;
+}
+.scene-ink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("/ink/placeholder-grain.svg") repeat;
+  opacity: 0.55;
+}
+
+.scene-body {
+  position: relative;
+  width: 100%;
+  padding: 5rem var(--space-gutter);
+  transform-origin: 50% 50%;
+}
+
+/* ---------- brush text ---------- */
+
+.brush-ink {
+  font-family: var(--font-display);
+}
+.brush-word {
+  display: inline-block;
+  overflow: visible;
+}
+.brush-last {
+  position: relative;
+  display: inline-block;
+}
+
+/* ---------- 1 threshold ---------- */
+
+.threshold {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  transition: opacity 450ms ease;
+}
+.threshold:focus {
+  outline: none;
+}
+.threshold[data-leaving] {
+  opacity: 0;
+  pointer-events: none;
+}
+/* A returning visitor in the same session: no ceremony. */
+html[data-phase="returning"] .threshold {
+  display: none;
+}
+html[data-phase="returning"] .vow-lines {
+  opacity: 0;
+}
+
+.threshold-stage {
+  display: grid;
+  justify-items: center;
+  gap: 2.25rem;
+  width: min(34rem, 82vw);
+}
+.threshold-word {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--paper);
+}
+
+.threshold-blade {
+  position: relative;
+  width: 100%;
+  height: 12px;
+}
+.threshold-sheath {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: 36%;
+  height: 3px;
+  transform: translateY(-50%);
+  background: var(--steel);
+  opacity: 0.32;
+}
+.threshold-light {
+  position: absolute;
+  top: 50%;
+  right: 36%;
+  width: 64%;
+  height: 1px;
+  margin-top: -0.5px;
+  transform-origin: 100% 50%;
+  background: var(--paper);
+  box-shadow: 0 0 6px rgb(237 230 214 / 0.45), 0 0 18px rgb(237 230 214 / 0.12);
+  transition: transform 700ms var(--ease-expo-out);
+}
+/* Fully drawn: one glint runs down the edge toward the tip. */
+.threshold-light::after {
+  content: "";
+  position: absolute;
+  inset: -1px auto -1px 100%;
+  width: 18%;
+  background: linear-gradient(to left, transparent, var(--jade), transparent);
+  opacity: 0;
+}
+.threshold[data-ready] .threshold-light::after {
+  animation: glint 900ms 200ms var(--ease-expo-out) forwards;
+}
+@keyframes glint {
+  0% { left: 100%; opacity: 0; }
+  20% { opacity: 1; }
+  100% { left: -18%; opacity: 0; }
+}
+
+.threshold-choices {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem 2.75rem;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 600ms ease 300ms, transform 600ms var(--ease-expo-out) 300ms;
+  visibility: hidden;
+}
+.threshold[data-ready] .threshold-choices {
+  opacity: 1;
+  transform: none;
+  visibility: visible;
+}
+.threshold-choice {
+  padding: 0.55rem 0.1rem;
+  border: 0;
+  border-bottom: 1px solid rgb(138 145 150 / 0.45);
+  background: none;
+  color: var(--paper);
+  font: 400 0.95rem/1.2 var(--font-body);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: border-color 200ms ease, color 200ms ease;
+}
+.threshold-choice:hover,
+.threshold-choice:focus-visible {
+  border-bottom-color: var(--jade);
+}
+
+.threshold-skip {
+  position: absolute;
+  bottom: max(1.5rem, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem;
+  color: var(--steel);
+  font: 400 0.75rem/1 var(--font-mono);
+  letter-spacing: 0.04em;
+  text-underline-offset: 4px;
+}
+.threshold-skip:hover {
+  color: var(--paper);
+}
+
+/* ---------- 2 the vow ---------- */
+
+.scene-vow .scene-body {
+  padding-block: 3.5rem 5.5rem;
+}
+.vow {
+  max-width: 54rem;
+  margin: 0 auto;
+}
+.vow-lines {
+  display: grid;
+  gap: 0.15em;
+  color: var(--paper);
+  /* Sized by width and by height, so the whole vow and its seal fit one screen. */
+  font-size: clamp(1.4rem, 0.5rem + min(2.6vw, 4.6svh), 3rem);
+  line-height: 1.38;
+}
+.vow-line {
+  margin: 0;
+  text-wrap: balance;
+}
+.seal-slot {
+  position: absolute;
+  top: 100%;
+  right: -0.2em;
+  width: 0.9em;
+  margin-top: 0.25em;
+}
+.seal {
+  display: block;
+  width: 100%;
+  height: auto;
+  transform: rotate(-3deg);
+}
+.vow-subline {
+  margin: 3.25em 0 0;
+  color: var(--steel);
+  font: 400 clamp(0.9rem, 0.85rem + 0.2vw, 1rem) / 1.6 var(--font-body);
+  letter-spacing: 0.02em;
+}
+.vow-name {
+  color: var(--paper);
+}
+.vow-continue {
+  position: absolute;
+  left: 50%;
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  transform: translateX(-50%);
+  padding: 0.5rem;
+  border: 0;
+  background: none;
+  color: var(--steel);
+  font: 400 0.72rem/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+.vow-continue-rule {
+  width: 1px;
+  height: 2.25rem;
+  background: linear-gradient(to bottom, transparent, var(--steel));
+}
+.vow-continue:hover {
+  color: var(--paper);
+}
+
+/* What motion will reveal stays hidden until its moment. */
+html[data-phase="threshold"] :is([data-seal], [data-subline], [data-continue]),
+html[data-phase="returning"] :is([data-seal], [data-subline], [data-continue]),
+html[data-phase="entering"] :is([data-seal], [data-subline], [data-continue]),
+html[data-phase="writing"] :is([data-seal], [data-subline], [data-continue]) {
+  opacity: 0;
+}
+html[data-phase="writing"] [data-continue] {
+  visibility: hidden;
+}
+
+/* ---------- 3 three blades ---------- */
+
+.blades {
+  max-width: 60rem;
+  margin: 0 auto;
+}
+.blade-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.5rem, 5vw, 5rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.blade {
+  display: grid;
+  justify-items: center;
+  gap: 1.1rem;
+  padding: 1rem 0.25rem;
+  color: var(--steel);
+  text-decoration: none;
+  transition: color 220ms ease;
+}
+.blade:hover,
+.blade:focus-visible,
+.scene-blades[data-active="research"] [data-blade="research"],
+.scene-blades[data-active="engineering"] [data-blade="engineering"],
+.scene-blades[data-active="security"] [data-blade="security"] {
+  color: var(--jade);
+}
+.blade-numeral {
+  font: 400 0.72rem/1 var(--font-mono);
+  letter-spacing: 0.1em;
+}
+.blade-stroke {
+  width: clamp(1.4rem, 3.6vw, 2.4rem);
+  height: clamp(13rem, 44svh, 24rem);
+  fill: currentColor;
+  transition: filter 220ms ease;
+}
+.blade:hover .blade-stroke,
+.blade:focus-visible .blade-stroke {
+  filter: drop-shadow(0 0 10px rgb(14 92 69 / 0.9));
+}
+.scene-blades[data-arrived] .blade-stroke {
+  animation: ink-down 700ms var(--ease-expo-out) both;
+}
+.scene-blades[data-arrived] li:nth-child(2) .blade-stroke {
+  animation-delay: 120ms;
+}
+.scene-blades[data-arrived] li:nth-child(3) .blade-stroke {
+  animation-delay: 240ms;
+}
+@keyframes ink-down {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+.blade-label {
+  color: var(--paper);
+  font-size: clamp(1.05rem, 0.8rem + 0.9vw, 1.55rem);
+}
+
+.blade-lines {
+  display: grid;
+  min-height: 3.2em;
+  margin-top: 2.5rem;
+  color: var(--paper);
+  font-size: clamp(1rem, 0.8rem + 0.85vw, 1.45rem);
+  line-height: 1.5;
+  text-align: center;
+}
+.blade-line {
+  grid-area: 1 / 1;
+  margin: 0;
+  visibility: hidden;
+}
+.scene-blades[data-line="research"] [data-blade-line="research"],
+.scene-blades[data-line="engineering"] [data-blade-line="engineering"],
+.scene-blades[data-line="security"] [data-blade-line="security"],
+.scene-blades:not([data-line]):has([data-blade="research"]:hover) [data-blade-line="research"],
+.scene-blades:not([data-line]):has([data-blade="engineering"]:hover) [data-blade-line="engineering"],
+.scene-blades:not([data-line]):has([data-blade="security"]:hover) [data-blade-line="security"] {
+  visibility: visible;
+}
+
+/* ---------- blade stubs ---------- */
+
+.stub {
+  max-width: 44rem;
+  margin: 0 auto;
+  text-align: center;
+}
+.stub-numeral {
+  margin: 0 0 1.5rem;
+  color: var(--steel);
+  font: 400 0.75rem/1 var(--font-mono);
+  letter-spacing: 0.1em;
+}
+.stub-title {
+  margin: 0;
+  color: var(--paper);
+  font-size: clamp(2rem, 1.4rem + 2.6vw, 3.4rem);
+  font-weight: 400;
+  line-height: 1.2;
+}
+.stub-line {
+  margin: 2rem 0 0;
+  color: var(--paper);
+  font-size: clamp(1.15rem, 0.9rem + 1.1vw, 1.8rem);
+  line-height: 1.5;
+}
+.stub-back {
+  display: inline-block;
+  margin-top: 3.5rem;
+  padding: 0.5rem;
+  color: var(--steel);
+  font: 400 0.75rem/1 var(--font-mono);
+  letter-spacing: 0.04em;
+  text-underline-offset: 4px;
+}
+.stub-back:hover {
+  color: var(--paper);
+}
+
+/* ---------- the cut ---------- */
+
+.cut-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  overflow: hidden;
+  pointer-events: none;
+}
+.cut-half {
+  position: absolute;
+  inset: 0;
+  will-change: transform, opacity;
+}
+.cut-dim {
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  opacity: 0;
+}
+.cut-line {
+  position: absolute;
+  height: 2px;
+  margin-top: -1px;
+  transform-origin: 0 50%;
+  background: var(--jade);
+  box-shadow: 0 0 6px 1px rgb(31 163 122 / 0.75), 0 0 28px 7px rgb(14 92 69 / 0.85);
+}
+.cut-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 46;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+/* ---------- mute ---------- */
+
+.mute-toggle {
+  position: fixed;
+  top: max(1rem, env(safe-area-inset-top));
+  right: var(--space-gutter);
+  z-index: 40;
+  padding: 0.5rem;
+  border: 0;
+  background: none;
+  color: var(--steel);
+  font: 400 0.72rem/1 var(--font-mono);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  visibility: hidden;
+}
+.mute-toggle[data-visible] {
+  visibility: visible;
+}
+.mute-toggle[aria-pressed="true"] .mute-state {
+  color: var(--jade);
+}
+
+/* ---------- cursor ---------- */
+
+.cursor-edge {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms ease;
+}
+.cursor-edge.is-visible {
+  opacity: 1;
+}
+.cursor-edge::before {
+  content: "";
+  position: absolute;
+  top: -0.75px;
+  left: 0;
+  width: 22px;
+  height: 1.5px;
+  transform: rotate(62deg);
+  transform-origin: 0 50%;
+  background: linear-gradient(to right, var(--paper), rgb(138 145 150 / 0.5));
+  transition: width 120ms ease, background-color 150ms ease;
+}
+.cursor-edge.is-action::before {
+  background: var(--jade);
+  box-shadow: 0 0 6px rgb(31 163 122 / 0.6);
+}
+.cursor-edge.is-pressed::before {
+  width: 15px;
+}
+.cursor-trail {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+}
+
+/* ---------- breath and stillness ---------- */
+
+html.is-locked {
+  overflow: hidden;
+}
+
+html.is-breathing .scene-body {
+  animation: breath calc(var(--breath-period-ms) * 1ms) ease-in-out infinite;
+}
+html.is-breathing .scene-ink {
+  animation: drift 40s linear infinite;
+}
+@keyframes breath {
+  50% { transform: scale(var(--breath-scale)); }
+}
+@keyframes drift {
+  to { transform: translate3d(-2.5%, -1.5%, 0) rotate(0.6deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.is-breathing .scene-body,
+  html.is-breathing .scene-ink {
+    animation: none;
+  }
+  .threshold-light {
+    transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .vow-subline {
+    margin-top: 3.25rem;
+  }
+  .blade-list {
+    gap: 0.25rem;
+  }
+}
+
+/* The kept stroke: jade, with the deep jade halo the brief reserves for decisive marks. */
+.brush-final {
+  /* SVG filter lengths are in font units here: 120 = 0.12em. */
+  filter: drop-shadow(0 0 120px var(--deep-jade));
+}
