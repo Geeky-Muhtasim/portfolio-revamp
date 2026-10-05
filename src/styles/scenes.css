@@ -212,7 +212,8 @@ html[data-phase="returning"] .vow-lines {
   position: absolute;
   top: 100%;
   right: -0.2em;
-  width: 0.9em;
+  /* Never so small that the initials stop reading on a phone. */
+  width: max(0.9em, 1.75rem);
   margin-top: 0.25em;
 }
 .seal {
