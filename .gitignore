@@ -14,5 +14,5 @@ next-env.d.ts
 coverage/
 .lighthouse/
 
-# private design brief (kept out of version control)
-docs/design-brief.md
+# design documents (kept out of version control)
+docs/
