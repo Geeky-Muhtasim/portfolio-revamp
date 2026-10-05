@@ -1,0 +1,101 @@
+@import "tailwindcss";
+@import "../styles/tokens.css";
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-steel: var(--steel);
+  --color-jade: var(--jade);
+  --color-deep-jade: var(--deep-jade);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+  --font-bangla: var(--font-bangla);
+  --ease-expo-out: var(--ease-expo-out);
+}
+
+@layer base {
+  html {
+    background: var(--ink);
+    color: var(--paper);
+    color-scheme: dark;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--jade);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 4px;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  /* The blade cursor replaces the pointer only once it is running. */
+  html.blade-cursor,
+  html.blade-cursor * {
+    cursor: none !important;
+  }
+
+  /* Lenis */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-stopped {
+    overflow: clip;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* /plain: readable, nothing more */
+.plain {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 3rem var(--space-gutter) 6rem;
+}
+.plain h1,
+.plain h2,
+.plain h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.2;
+}
+.plain h1 { font-size: 2.25rem; margin: 0 0 1rem; }
+.plain h2 { font-size: 1.5rem; margin: 3.5rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--steel); }
+.plain h3 { font-size: 1.125rem; margin: 2rem 0 0.5rem; }
+.plain h4 { font-size: 0.875rem; margin: 1rem 0 0.25rem; color: var(--steel); font-weight: 500; }
+.plain p, .plain ul, .plain dl, .plain blockquote { margin: 0 0 0.75rem; }
+.plain ul { padding-left: 1.25rem; list-style: disc; }
+.plain dt { color: var(--steel); font-size: 0.875rem; margin-top: 0.5rem; }
+.plain dd { margin: 0; }
+.plain blockquote { font-family: var(--font-display); font-size: 1.25rem; }
+.plain a { text-decoration: underline; text-underline-offset: 3px; }
+.plain a:hover { color: var(--jade); }
+.plain .plain-inline { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; }
