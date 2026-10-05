@@ -1,8 +1,12 @@
 import data from "./generated/glyphs.json";
+import strokeData from "./generated/strokes.json";
 
 /*
  * The shared brush interface. Generated strokes today; hand-lettered
- * strokes later. Anything that provides this shape can be written.
+ * strokes later. Anything that provides these shapes can be written.
+ *
+ * Server code reads outlines and layout from here. The browser reads
+ * strokes from strokes.ts, which ships only in the lazy motion chunk.
  */
 
 export interface BrushStroke {
@@ -14,11 +18,6 @@ export interface BrushStroke {
   l: number;
 }
 
-export interface BrushGlyph {
-  d: string;
-  strokes: BrushStroke[];
-}
-
 export interface BrushWord {
   text: string;
   advance: number;
@@ -27,12 +26,13 @@ export interface BrushWord {
 
 export interface BrushData {
   metrics: { upm: number; ascender: number; descender: number; space: number };
-  glyphs: Record<string, BrushGlyph>;
+  outlines: Record<string, string>;
   phrases: Record<string, { text: string; words: BrushWord[] }>;
   seal: { text: string; glyphs: Record<string, string>; words: BrushWord[] };
 }
 
 export const brush = data as BrushData;
+export const strokes = strokeData as Record<string, BrushStroke[]>;
 
 export function getPhrase(key: string) {
   const phrase = brush.phrases[key];

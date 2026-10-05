@@ -32,7 +32,7 @@ export function BladesScene() {
         <div className="blade-lines">
           {blades.map((b) => (
             <p key={b.id} id={`blade-line-${b.id}`} className="blade-line" data-blade-line={b.id}>
-              <BrushText phrase={`blade.${b.id}.line`} instance={`hub-${b.id}`} />
+              <BrushText phrase={`blade.${b.id}.line`} />
             </p>
           ))}
         </div>

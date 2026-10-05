@@ -12,10 +12,10 @@ export function BladeStub({ id }: { id: BladeId }) {
           {ui.bladePrefix} {blade.numeral}
         </p>
         <h2 id={`blade-${id}-title`} className="stub-title">
-          <BrushText phrase={`blade.${id}.label`} instance={`stub-label-${id}`} />
+          <BrushText phrase={`blade.${id}.label`} />
         </h2>
         <p className="stub-line">
-          <BrushText phrase={`blade.${id}.line`} instance={`stub-${id}`} />
+          <BrushText phrase={`blade.${id}.line`} />
         </p>
         <a href="#blades" className="stub-back" data-cut="">
           {ui.backToBlades}
