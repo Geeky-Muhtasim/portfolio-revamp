@@ -7,7 +7,7 @@ import type { Howl } from "howler";
 
 export const SPRITE_SRC = "/audio/placeholder-sprite.wav";
 /** Must match scripts/build-placeholder-audio.mjs. */
-export const SPRITE: Record<"drone" | "cut", [number, number]> = { drone: [0, 4200], cut: [4500, 900] };
+export const SPRITE: Record<"power" | "slash" | "tick", [number, number]> = { power: [0, 1600], slash: [1800, 900], tick: [2900, 60] };
 
 export type SoundName = keyof typeof SPRITE;
 
@@ -52,8 +52,5 @@ export async function setMuted(muted: boolean) {
 export function play(name: SoundName) {
   if (!howl || state.muted) return;
   const id = howl.play(name);
-  if (name === "drone") {
-    howl.volume(0, id);
-    howl.fade(0, 0.55, 900, id);
-  }
+  if (name === "tick") howl.volume(0.25, id);
 }

@@ -12,13 +12,13 @@ export function MuteToggle({ visible }: { visible: boolean }) {
   return (
     <button
       type="button"
-      className="mute-toggle"
+      className="hud-mute"
       data-visible={visible ? "" : undefined}
       aria-pressed={!muted}
       tabIndex={visible ? 0 : -1}
       onClick={() => void setMuted(!muted)}
     >
-      {ui.sound} <span className="mute-state">{muted ? ui.soundOff : ui.soundOn}</span>
+      {ui.sound} <span className="hud-mute-state">{muted ? ui.soundOff : ui.soundOn}</span>
     </button>
   );
 }
