@@ -41,6 +41,13 @@ describe("site copy", () => {
     expect(vow.lines.at(-1)).toMatch(new RegExp(`\\b${vow.keptWord}\\.$`));
   });
 
+  it("only uses Bangla characters that the self-hosted Tiro Bangla subset contains", () => {
+    const source = readFileSync("src/config/site.ts", "utf8");
+    const subset = readFileSync("src/app/fonts/bangla-subset.txt", "utf8");
+    const used = [...new Set(source.match(/[ঀ-৿‌‍]/g) ?? [])];
+    for (const ch of used) expect(subset, `run node scripts/fetch-fonts.mjs (missing ${ch})`).toContain(ch);
+  });
+
   it("credits only people who appear in portfolio.md", () => {
     const known = new Set([
       ...portfolio.publications.flatMap((p) => p.authors.map((a) => a.name)),

@@ -1,8 +1,14 @@
-import { blades } from "@/config/site";
 import { getPortfolio } from "@/content/load";
 import { VowScene } from "@/scenes/02-vow/VowScene";
-import { BladeStub } from "@/scenes/03-blades/BladeStub";
 import { BladesScene } from "@/scenes/03-blades/BladesScene";
+import { ResearchScene } from "@/scenes/04-research/ResearchScene";
+import { EngineeringScene } from "@/scenes/05-engineering/EngineeringScene";
+import { SecurityScene } from "@/scenes/06-security/SecurityScene";
+import { RoadScene } from "@/scenes/07-road/RoadScene";
+import { TrainingLogScene } from "@/scenes/08-training-log/TrainingLogScene";
+import { TrialsScene } from "@/scenes/09-trials/TrialsScene";
+import { CrewScene } from "@/scenes/10-crew/CrewScene";
+import { CrossBladesScene } from "@/scenes/11-cross-blades/CrossBladesScene";
 import { Sequence } from "@/scenes/Sequence";
 import { CelWorld } from "@/world/CelWorld";
 
@@ -15,7 +21,8 @@ import { CelWorld } from "@/world/CelWorld";
 const BEFORE_PAINT = `history.scrollRestoration="manual";var d=document.documentElement;d.dataset.phase="threshold";try{if(sessionStorage.getItem("three-blades:entered"))d.dataset.phase="returning"}catch(e){}`;
 
 export default function Home() {
-  const { profile } = getPortfolio();
+  const portfolio = getPortfolio();
+  const { profile } = portfolio;
   const city = profile.location.split(",")[0]!.trim();
   return (
     <>
@@ -37,9 +44,14 @@ export default function Home() {
       <Sequence city={city}>
         <VowScene name={profile.name} />
         <BladesScene />
-        {blades.map((b) => (
-          <BladeStub key={b.id} id={b.id} />
-        ))}
+        <ResearchScene portfolio={portfolio} />
+        <EngineeringScene portfolio={portfolio} />
+        <SecurityScene portfolio={portfolio} />
+        <RoadScene portfolio={portfolio} />
+        <TrainingLogScene portfolio={portfolio} />
+        <TrialsScene />
+        <CrewScene portfolio={portfolio} />
+        <CrossBladesScene portfolio={portfolio} />
       </Sequence>
       <div className="crt-layer" aria-hidden="true">
         <i className="crt-scan" />

@@ -58,6 +58,8 @@ export function Sequence({ city, children }: { city: string; children: ReactNode
   const vowTyping = useRef<Typing | null>(null);
   const lineTyping = useRef<Typing | null>(null);
   const stopParallax = useRef<(() => void) | null>(null);
+  const stopScenes = useRef<(() => void) | null>(null);
+  const scenesStarted = useRef(false);
   const arrived = useRef(new WeakSet<Element>());
   const phaseRef = useRef<Phase>("threshold");
   const slashingRef = useRef(false);
@@ -82,12 +84,19 @@ export function Sequence({ city, children }: { city: string; children: ReactNode
 
   const startScroll = useCallback(() => {
     const mod = exp.current;
-    if (!mod || prefersReducedMotion()) return;
-    if (!lenis.current) {
-      lenis.current = mod.createLenis();
-      lenis.current.stop();
+    if (!mod) return;
+    const reduced = prefersReducedMotion();
+    if (!reduced) {
+      if (!lenis.current) {
+        lenis.current = mod.createLenis();
+        lenis.current.stop();
+      }
+      stopParallax.current ??= mod.startParallax();
     }
-    stopParallax.current ??= mod.startParallax();
+    if (!scenesStarted.current) {
+      scenesStarted.current = true;
+      void mod.initScenes({ lenis: lenis.current, reduced }).then((stop) => (stopScenes.current = stop));
+    }
   }, []);
 
   const lock = (locked: boolean) => {
@@ -223,6 +232,7 @@ export function Sequence({ city, children }: { city: string; children: ReactNode
       vowTyping.current?.timeline.kill();
       lenis.current?.destroy();
       stopParallax.current?.();
+      stopScenes.current?.();
       crt.current?.destroy();
     };
     // Runs once: the ceremony happens once per page load.
@@ -234,9 +244,10 @@ export function Sequence({ city, children }: { city: string; children: ReactNode
 
   /* ---------- arriving at a scene ---------- */
 
+  /** A scene arrives: its title card smears in and its line types. Focus moves only after a slash. */
   const arrive = useCallback(
-    (scene: HTMLElement) => {
-      scene.focus({ preventScroll: true });
+    (scene: HTMLElement, focus = false) => {
+      if (focus) scene.focus({ preventScroll: true });
       if (arrived.current.has(scene)) return;
       arrived.current.add(scene);
       const mod = exp.current;
@@ -280,7 +291,7 @@ export function Sequence({ city, children }: { city: string; children: ReactNode
       });
       slashingRef.current = false;
       setSlashing(false);
-      arrive(to);
+      arrive(to, true);
     },
     [arrive, go],
   );
@@ -457,13 +468,14 @@ export function Sequence({ city, children }: { city: string; children: ReactNode
 
   useEffect(() => {
     if (phase !== "free") return;
+    // A scene arrives once it fills half the screen (tall scroll scenes never reach half their own height).
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting && !slashingRef.current) arrive(entry.target as HTMLElement);
+          if (entry.intersectionRect.height >= window.innerHeight * 0.5 && !slashingRef.current) arrive(entry.target as HTMLElement);
         }
       },
-      { threshold: 0.5 },
+      { threshold: Array.from({ length: 21 }, (_, i) => i / 20) },
     );
     $$("main [data-scene]").forEach((s) => io.observe(s));
     return () => io.disconnect();

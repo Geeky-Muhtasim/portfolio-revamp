@@ -64,6 +64,68 @@ export const episodes = {
   research: { code: "EP.03", title: "BLADE I" },
   engineering: { code: "EP.04", title: "BLADE II" },
   security: { code: "EP.05", title: "BLADE III" },
+  road: { code: "EP.06", title: "THE ROAD" },
+  trainingLog: { code: "EP.07", title: "TRAINING LOG" },
+  trials: { code: "EP.08", title: "TRIALS" },
+  crew: { code: "EP.09", title: "CREW" },
+  crossBlades: { code: "EP.10", title: "CROSS BLADES" },
+} as const;
+
+/** Title cards for the scenes after the blades: the scene names from the brief. */
+export const titleCards = {
+  road: "The Road.",
+  trainingLog: "Training Log.",
+  trials: "Trials.",
+  crew: "Crew.",
+  crossBlades: "Cross Blades.",
+} as const;
+
+/** HUD labels. Labels only; every number beside them comes from portfolio.md. */
+export const labels = {
+  citations: "CITATIONS",
+  hIndex: "H-INDEX",
+  publications: "PUBLICATIONS",
+  caseRecord: "CASE",
+  abstract: "ABSTRACT",
+  contribution: "MY PART",
+  impact: "IMPACT",
+  authors: "AUTHORS",
+  officialProjects: "OFFICIAL PROJECTS",
+  status: "STATUS",
+  role: "ROLE",
+  period: "PERIOD",
+  stack: "STACK",
+  closeCard: "Close",
+  incident: "INCIDENT CANDIDATE",
+  howScored: "HOW IT IS SCORED",
+  caseFile: "CASE FILE",
+  station: "STATION",
+  allBlades: "all",
+  usedIn: "used in",
+  report: "INCIDENT REPORT",
+  problem: "PROBLEM",
+  cause: "CAUSE",
+  decision: "DECISION",
+  fix: "FIX",
+  credits: "IN ORDER OF APPEARANCE",
+  nextEpisode: "NEXT EPISODE",
+  powerOn: "Power on",
+} as const;
+
+/** Contact links as terminal commands. The addresses come from portfolio.md. */
+export const commands = {
+  email: "mail",
+  github: "open github",
+  linkedin: "open linkedin",
+  scholar: "open scholar",
+} as const;
+
+/**
+ * The dataset name, as written in Bangla. Shown in the Research scene in
+ * Tiro Bangla beside its English record. Flagged for the owner to confirm.
+ */
+export const bangla = {
+  somajgyaan: "সমাজজ্ঞান",
 } as const;
 
 export const hud = {
@@ -127,12 +189,35 @@ export const crew: ReadonlyArray<{ name: string; kind: "person" | "team" }> = [
   { name: "Bangladesh Finance PLC IT Division", kind: "team" },
 ];
 
-/** Public-safe Trials candidates from the brief. Full problem/cause/lesson text is still to be written. */
-export const trials: ReadonlyArray<{ id: string; summary: string }> = [
-  { id: "crash-loop", summary: "An intrusion detection crash loop traced to one duplicated config block." },
-  { id: "missing-grant", summary: "A silent bug that dropped records in batches, fixed by a single missing database grant." },
+/**
+ * Public-safe Trials from the brief, split into report fields using only
+ * the brief's own words. A field the brief does not state is left out, not
+ * filled in. Fuller problem, cause and fix text is still to be written.
+ */
+export const trials: ReadonlyArray<{
+  id: string;
+  summary: string;
+  problem?: string;
+  cause?: string;
+  decision?: string;
+  fix?: string;
+}> = [
+  {
+    id: "crash-loop",
+    summary: "An intrusion detection crash loop traced to one duplicated config block.",
+    problem: "An intrusion detection crash loop.",
+    cause: "One duplicated config block.",
+  },
+  {
+    id: "missing-grant",
+    summary: "A silent bug that dropped records in batches, fixed by a single missing database grant.",
+    problem: "A silent bug that dropped records in batches.",
+    fix: "A single missing database grant.",
+  },
   {
     id: "logs-not-packets",
     summary: "A mid-build decision to switch AEGIS from packet capture to firewall logs, and the redesign around it.",
+    decision: "Switch AEGIS from packet capture to firewall logs, mid-build.",
+    fix: "The redesign around it.",
   },
 ];
