@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "glyphs": "node scripts/build-vow-glyphs.mjs",
+    "glyphs": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/build-glyphs.mts",
     "check:copy": "node scripts/check-copy.mjs"
   },
   "dependencies": {
