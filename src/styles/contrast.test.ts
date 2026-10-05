@@ -16,23 +16,34 @@ function luminance(color: string): number {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-export function contrast(a: string, b: string): number {
+function contrast(a: string, b: string): number {
   const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x) as [number, number];
   return (hi + 0.05) / (lo + 0.05);
 }
 
-describe("WCAG AA contrast for text pairs", () => {
+describe("WCAG AA contrast for every text pair the site uses", () => {
   it.each([
-    ["paper", "ink"],
-    ["steel", "ink"],
-    ["jade", "ink"],
-    ["deep-jade", "paper"],
-    ["ink", "paper"],
+    ["phosphor", "night-green"],
+    ["phosphor", "crt-screen"],
+    ["phosphor", "outline"],
+    ["signal-red", "night-green"],
+    ["signal-red", "crt-screen"],
+    ["signal-red", "outline"],
+    ["cel-cream", "crt-screen"],
+    ["cel-cream", "night-green"],
+    ["cel-cream", "crimson"],
+    ["sun-gold", "crt-screen"],
   ])("%s on %s is at least 4.5:1", (fg, bg) => {
     expect(contrast(hex(fg), hex(bg))).toBeGreaterThanOrEqual(4.5);
   });
 
-  it("jade on paper fails, so it is never used for text there", () => {
-    expect(contrast(hex("jade"), hex("paper"))).toBeLessThan(4.5);
+  it("crimson and moss fail as small text, so they are only ever fills and shapes", () => {
+    expect(contrast(hex("crimson"), hex("crt-screen"))).toBeLessThan(4.5);
+    expect(contrast(hex("moss"), hex("night-green"))).toBeLessThan(4.5);
+  });
+
+  it("never uses pure black", () => {
+    const black = new RegExp(`#${"0".repeat(3)}(${"0".repeat(3)})?(?![0-9a-f])`);
+    expect(css.toLowerCase()).not.toMatch(black);
   });
 });

@@ -7,7 +7,18 @@ import localFont from "next/font/local";
  * at build time. Shippori Mincho B1 is a Japanese family whose stock CSS
  * runs to hundreds of slices, so it is a committed Latin-only subset
  * instead (scripts/fetch-fonts.mjs, SIL Open Font License).
+ *
+ * IBM Plex Mono is the terminal, the vow and the HUD: the first text on
+ * screen, so it is preloaded.
  */
+export const plexMono = IBM_Plex_Mono({
+  weight: ["400", "500"],
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-plex-mono",
+});
+
+/** Title cards and the seal. */
 export const shippori = localFont({
   src: "./fonts/shippori-mincho-b1-500-latin.woff2",
   weight: "500",
@@ -16,19 +27,13 @@ export const shippori = localFont({
   fallback: ["Times New Roman", "serif"],
 });
 
+/** Longer reading, such as /plain. */
 export const plexSans = IBM_Plex_Sans({
   weight: ["400", "500"],
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-plex-sans",
-});
-
-export const plexMono = IBM_Plex_Mono({
-  weight: ["400"],
-  subsets: ["latin"],
-  display: "swap",
   preload: false,
-  variable: "--font-plex-mono",
+  variable: "--font-plex-sans",
 });
 
 export const tiroBangla = Tiro_Bangla({
@@ -39,4 +44,4 @@ export const tiroBangla = Tiro_Bangla({
   variable: "--font-tiro-bangla",
 });
 
-export const fontVariables = [shippori, plexSans, plexMono, tiroBangla].map((f) => f.variable).join(" ");
+export const fontVariables = [plexMono, shippori, plexSans, tiroBangla].map((f) => f.variable).join(" ");

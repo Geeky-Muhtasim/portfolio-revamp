@@ -1,17 +1,32 @@
 /*
- * Design tokens. Colors from the brief; motion values mirror
- * src/motion/tokens.ts (a test keeps the two in sync).
+ * Design tokens: retro cyber cel. Nine colours from the brief, plus the
+ * five derived shades the approved reference paints with. Motion values
+ * mirror src/motion/tokens.ts (a test keeps the two in sync).
  *
- * Contrast on ink: paper 15.7:1, steel 6.1:1, jade 6.1:1 (all pass AA).
- * Jade on paper is 2.6:1, so jade text on paper uses deep jade (6.4:1).
- * Deep jade on ink is 2.5:1: glow only, never text.
+ * Text contrast, checked by src/styles/contrast.test.ts:
+ *   phosphor on night 10.1, on the CRT screen 8.9
+ *   signal red on night 5.3, on the CRT screen 4.7
+ *     (the brief's #E05A4C was 4.4 and 3.9; lightened to pass AA)
+ *   cel cream on crimson 4.8
+ * Crimson and moss are never small text: 2.4 and 3.1 on the screen.
  */
 :root {
-  --ink: #0b0c0c;
-  --paper: #ede6d6;
-  --steel: #8a9196;
-  --jade: #1fa37a;
-  --deep-jade: #0e5c45;
+  --night-green: #0f2420;
+  --dusk-green: #1e3b36;
+  --moss: #4f7f64;
+  --phosphor: #7fe0a0;
+  --crimson: #b23a2e;
+  --signal-red: #ec6c5e;
+  --sunset-amber: #c9875a;
+  --sun-gold: #e9b872;
+  --cel-cream: #f1e7cf;
+
+  /* derived shades from the reference */
+  --sky-high: #2e5a4e;
+  --skyline: #143029;
+  --outline: #0e1f1b;
+  --crt-screen: #123026;
+  --crt-scanline: #163a2e;
 
   --font-display: var(--font-shippori), "Times New Roman", serif;
   --font-body: var(--font-plex-sans), system-ui, sans-serif;
@@ -21,20 +36,16 @@
   --space-gutter: clamp(1rem, 4vw, 3rem);
   --measure: 62ch;
 
-  /* the cut */
-  --cut-still-ms: 120;
-  --cut-dim: 0.08;
-  --cut-slash-ms: 80;
-  --cut-split-ms: 250;
-  --cut-angle-deg: 20;
+  /* the glitch slash */
+  --slash-freeze-ms: 100;
+  --slash-impact-ms: 80;
+  --slash-split-ms: 250;
+  --slash-angle-deg: 20;
   --ease-expo-out: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* brush, cursor, breath */
-  --vow-write-ms: 4000;
-  --trail-fade-ms: 900;
-  --breath-idle-ms: 10000;
-  --breath-period-ms: 6000;
-  --breath-scale: 1.008;
+  /* typing and idle drift */
+  --vow-type-ms: 4000;
+  --drift-idle-ms: 10000;
 
-  --focus-ring: 2px solid var(--jade);
+  --focus-ring: 2px solid var(--signal-red);
 }

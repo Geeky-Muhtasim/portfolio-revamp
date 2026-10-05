@@ -7,21 +7,20 @@ const cssVar = (name: string) => new RegExp(`--${name}:\\s*([^;]+);`).exec(css)?
 
 describe("motion tokens", () => {
   it("match between CSS and TS", () => {
-    expect(Number(cssVar("cut-still-ms"))).toBe(motion.cut.stillMs);
-    expect(Number(cssVar("cut-dim"))).toBe(motion.cut.dim);
-    expect(Number(cssVar("cut-slash-ms"))).toBe(motion.cut.slashMs);
-    expect(Number(cssVar("cut-split-ms"))).toBe(motion.cut.splitMs);
-    expect(Number(cssVar("cut-angle-deg"))).toBe(motion.cut.angleDeg);
+    expect(Number(cssVar("slash-freeze-ms"))).toBe(motion.slash.freezeMs);
+    expect(Number(cssVar("slash-impact-ms"))).toBe(motion.slash.impactMs);
+    expect(Number(cssVar("slash-split-ms"))).toBe(motion.slash.splitMs);
+    expect(Number(cssVar("slash-angle-deg"))).toBe(motion.slash.angleDeg);
     expect(cssVar("ease-expo-out")).toBe(motion.easeExpoOut);
-    expect(Number(cssVar("vow-write-ms"))).toBe(motion.vowWriteMs);
-    expect(Number(cssVar("trail-fade-ms"))).toBe(motion.trailFadeMs);
-    expect(Number(cssVar("breath-idle-ms"))).toBe(motion.breath.idleMs);
-    expect(Number(cssVar("breath-period-ms"))).toBe(motion.breath.periodMs);
-    expect(Number(cssVar("breath-scale"))).toBe(motion.breath.scale);
+    expect(Number(cssVar("vow-type-ms"))).toBe(motion.vowTypeMs);
+    expect(Number(cssVar("drift-idle-ms"))).toBe(motion.drift.idleMs);
   });
 
   it("stay inside the brief's ranges", () => {
-    expect(motion.cut.angleDeg).toBeGreaterThanOrEqual(18);
-    expect(motion.cut.angleDeg).toBeLessThanOrEqual(22);
+    expect(motion.slash.angleDeg).toBeGreaterThanOrEqual(18);
+    expect(motion.slash.angleDeg).toBeLessThanOrEqual(22);
+    expect(motion.slash.freezeMs).toBe(100);
+    expect(motion.slash.impactMs).toBe(80);
+    expect(motion.slash.splitMs).toBe(250);
   });
 });

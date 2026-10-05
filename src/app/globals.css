@@ -3,11 +3,15 @@
 @import "../styles/scenes.css";
 
 @theme inline {
-  --color-ink: var(--ink);
-  --color-paper: var(--paper);
-  --color-steel: var(--steel);
-  --color-jade: var(--jade);
-  --color-deep-jade: var(--deep-jade);
+  --color-night-green: var(--night-green);
+  --color-dusk-green: var(--dusk-green);
+  --color-moss: var(--moss);
+  --color-phosphor: var(--phosphor);
+  --color-crimson: var(--crimson);
+  --color-signal-red: var(--signal-red);
+  --color-sunset-amber: var(--sunset-amber);
+  --color-sun-gold: var(--sun-gold);
+  --color-cel-cream: var(--cel-cream);
   --font-display: var(--font-display);
   --font-body: var(--font-body);
   --font-mono: var(--font-mono);
@@ -17,15 +21,15 @@
 
 @layer base {
   html {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--night-green);
+    color: var(--cel-cream);
     color-scheme: dark;
     -webkit-text-size-adjust: 100%;
   }
 
   body {
     margin: 0;
-    background: var(--ink);
+    background: var(--night-green);
     font-family: var(--font-body);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
@@ -33,8 +37,8 @@
   }
 
   ::selection {
-    background: var(--jade);
-    color: var(--ink);
+    background: var(--crimson);
+    color: var(--cel-cream);
   }
 
   :focus-visible {
@@ -46,9 +50,9 @@
     color: inherit;
   }
 
-  /* The blade cursor replaces the pointer only once it is running. */
-  html.blade-cursor,
-  html.blade-cursor * {
+  /* The reticle replaces the pointer only once it is running. */
+  html.has-reticle,
+  html.has-reticle * {
     cursor: none !important;
   }
 
@@ -89,14 +93,14 @@
   line-height: 1.2;
 }
 .plain h1 { font-size: 2.25rem; margin: 0 0 1rem; }
-.plain h2 { font-size: 1.5rem; margin: 3.5rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--steel); }
+.plain h2 { font-size: 1.5rem; margin: 3.5rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--moss); }
 .plain h3 { font-size: 1.125rem; margin: 2rem 0 0.5rem; }
-.plain h4 { font-size: 0.875rem; margin: 1rem 0 0.25rem; color: var(--steel); font-weight: 500; }
+.plain h4 { font: 500 0.8rem/1.4 var(--font-mono); margin: 1rem 0 0.25rem; color: var(--phosphor); text-transform: uppercase; letter-spacing: 0.06em; }
 .plain p, .plain ul, .plain dl, .plain blockquote { margin: 0 0 0.75rem; }
 .plain ul { padding-left: 1.25rem; list-style: disc; }
-.plain dt { color: var(--steel); font-size: 0.875rem; margin-top: 0.5rem; }
+.plain dt { font: 400 0.8rem/1.4 var(--font-mono); color: var(--phosphor); margin-top: 0.5rem; }
 .plain dd { margin: 0; }
-.plain blockquote { font-family: var(--font-display); font-size: 1.25rem; }
+.plain blockquote { font-family: var(--font-mono); font-size: 1.05rem; color: var(--phosphor); }
 .plain a { text-decoration: underline; text-underline-offset: 3px; }
-.plain a:hover { color: var(--jade); }
+.plain a:hover { color: var(--signal-red); }
 .plain .plain-inline { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; }
