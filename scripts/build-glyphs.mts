@@ -52,6 +52,26 @@ async function loadFont(weight: number, text: string) {
 
 /* ---------- geometry helpers ---------- */
 
+/** Path data with explicit separators. (opentype's compact output can run numbers together.) */
+function pathData(path: opentype.Path): string {
+  const r = (n: number) => String(Math.round(n));
+  return path.commands
+    .map((c) => {
+      switch (c.type) {
+        case "M":
+        case "L":
+          return `${c.type}${r(c.x)} ${r(c.y)}`;
+        case "Q":
+          return `Q${r(c.x1)} ${r(c.y1)} ${r(c.x)} ${r(c.y)}`;
+        case "C":
+          return `C${r(c.x1)} ${r(c.y1)} ${r(c.x2)} ${r(c.y2)} ${r(c.x)} ${r(c.y)}`;
+        default:
+          return "Z";
+      }
+    })
+    .join("");
+}
+
 function flatten(path: opentype.Path): Pt[][] {
   const contours: Pt[][] = [];
   let cur: Pt[] = [];
@@ -557,7 +577,7 @@ async function main() {
     const id = `g${g.unicode?.toString(16) ?? g.index}`;
     if (!glyphs[id]) {
       const path = g.getPath(0, 0, upm);
-      glyphs[id] = { d: path.toPathData({ decimalPlaces: 0, flipY: false }), strokes: glyphStrokes(path, String.fromCodePoint(g.unicode ?? 32), upm) };
+      glyphs[id] = { d: pathData(path), strokes: glyphStrokes(path, String.fromCodePoint(g.unicode ?? 32), upm) };
     }
     return id;
   };
@@ -578,7 +598,7 @@ async function main() {
   const sealGlyphs: Record<string, string> = {};
   const sealWords = layout(seal, SEAL_TEXT, (g) => {
     const id = `s${g.unicode?.toString(16) ?? g.index}`;
-    sealGlyphs[id] ??= g.getPath(0, 0, upm).toPathData({ decimalPlaces: 0, flipY: false });
+    sealGlyphs[id] ??= pathData(g.getPath(0, 0, upm));
     return id;
   });
 
