@@ -1,0 +1,40 @@
+/*
+ * Design tokens. Colors from the brief; motion values mirror
+ * src/motion/tokens.ts (a test keeps the two in sync).
+ *
+ * Contrast on ink: paper 15.7:1, steel 6.1:1, jade 6.1:1 (all pass AA).
+ * Jade on paper is 2.6:1, so jade text on paper uses deep jade (6.4:1).
+ * Deep jade on ink is 2.5:1: glow only, never text.
+ */
+:root {
+  --ink: #0b0c0c;
+  --paper: #ede6d6;
+  --steel: #8a9196;
+  --jade: #1fa37a;
+  --deep-jade: #0e5c45;
+
+  --font-display: var(--font-shippori), "Times New Roman", serif;
+  --font-body: var(--font-plex-sans), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+  --font-bangla: var(--font-tiro-bangla), serif;
+
+  --space-gutter: clamp(1rem, 4vw, 3rem);
+  --measure: 62ch;
+
+  /* the cut */
+  --cut-still-ms: 120;
+  --cut-dim: 0.08;
+  --cut-slash-ms: 80;
+  --cut-split-ms: 250;
+  --cut-angle-deg: 20;
+  --ease-expo-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* brush, cursor, breath */
+  --vow-write-ms: 4000;
+  --trail-fade-ms: 900;
+  --breath-idle-ms: 10000;
+  --breath-period-ms: 6000;
+  --breath-scale: 1.008;
+
+  --focus-ring: 2px solid var(--jade);
+}
