@@ -3,25 +3,27 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import type Lenis from "lenis";
 import { flags } from "@/config/site";
-import { BladeCursor } from "@/motion/cursor/BladeCursor";
-import { useBreath } from "@/motion/breath/useBreath";
+import type { CrtLayer } from "@/motion/crt/webglCrt";
+import { Reticle } from "@/motion/cursor/Reticle";
 import { pickCutMode } from "@/motion/device";
-import type { SlashRenderer } from "@/motion/cut/runCut";
+import { useIdleDrift } from "@/motion/drift/useIdleDrift";
 import { MuteToggle } from "@/motion/sound/MuteToggle";
 import { enableSound, play } from "@/motion/sound/sound";
 import { motion } from "@/motion/tokens";
+import type { Typing } from "@/motion/typing/typer";
 import { prefersReducedMotion, useReducedMotion } from "@/motion/useReducedMotion";
+import { StatusLine } from "@/hud/StatusLine";
 import { Threshold } from "./01-threshold/Threshold";
 
 /*
  * The director. Runs one continuous sequence:
- *   threshold -> entering -> writing -> sealed -> (the cut) -> free
+ *   threshold -> entering -> typing -> sealed -> (the slash) -> free
  * Scenes are server-rendered children; this component only adds motion,
  * found through data attributes. Without JavaScript, everything is simply
- * there.
+ * there, fully typed.
  */
 
-type Phase = "threshold" | "entering" | "writing" | "sealed" | "free";
+type Phase = "threshold" | "entering" | "typing" | "sealed" | "free";
 type Experience = typeof import("@/motion/experience");
 
 const ENTERED_KEY = "three-blades:entered";
@@ -43,21 +45,22 @@ function center(el: Element) {
   return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
 }
 
-export function Sequence({ children }: { children: ReactNode }) {
+export function Sequence({ city, children }: { city: string; children: ReactNode }) {
   const reducedMotion = useReducedMotion();
   const [phase, setPhase] = useState<Phase>("threshold");
   const [progress, setProgress] = useState(0);
   const [ready, setReady] = useState(false);
-  const [cutting, setCutting] = useState(false);
+  const [slashing, setSlashing] = useState(false);
 
   const exp = useRef<Experience | null>(null);
   const lenis = useRef<Lenis | null>(null);
-  const slash = useRef<SlashRenderer | null>(null);
-  const writing = useRef<gsap.core.Timeline | null>(null);
-  const lineTl = useRef<gsap.core.Timeline | null>(null);
-  const written = useRef(new WeakSet<Element>());
+  const crt = useRef<CrtLayer | null>(null);
+  const vowTyping = useRef<Typing | null>(null);
+  const lineTyping = useRef<Typing | null>(null);
+  const stopParallax = useRef<(() => void) | null>(null);
+  const arrived = useRef(new WeakSet<Element>());
   const phaseRef = useRef<Phase>("threshold");
-  const cuttingRef = useRef(false);
+  const slashingRef = useRef(false);
 
   const go = useCallback((next: Phase) => {
     phaseRef.current = next;
@@ -65,15 +68,26 @@ export function Sequence({ children }: { children: ReactNode }) {
     setPhase(next);
   }, []);
 
-  useBreath(!reducedMotion && !cutting && (phase === "sealed" || phase === "free"));
+  useIdleDrift(!reducedMotion && !slashing && (phase === "sealed" || phase === "free"));
 
-  /* ---------- scroll ---------- */
+  useEffect(() => {
+    const root = document.documentElement;
+    const sync = () => crt.current?.setRolling(root.classList.contains("is-drifting"));
+    const mo = new MutationObserver(sync);
+    mo.observe(root, { attributeFilter: ["class"] });
+    return () => mo.disconnect();
+  }, []);
+
+  /* ---------- scroll and parallax ---------- */
 
   const startScroll = useCallback(() => {
     const mod = exp.current;
-    if (!mod || lenis.current || prefersReducedMotion()) return;
-    lenis.current = mod.createLenis();
-    lenis.current.stop();
+    if (!mod || prefersReducedMotion()) return;
+    if (!lenis.current) {
+      lenis.current = mod.createLenis();
+      lenis.current.stop();
+    }
+    stopParallax.current ??= mod.startParallax();
   }, []);
 
   const lock = (locked: boolean) => {
@@ -87,29 +101,40 @@ export function Sequence({ children }: { children: ReactNode }) {
     else window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY, behavior: "instant" });
   };
 
-  /* ---------- writing ---------- */
+  /* ---------- typing ---------- */
 
-  const writePhrases = useCallback((roots: Element[], durationMs: number) => {
-    const mod = exp.current;
-    if (!mod || !roots.length) return null;
-    if (prefersReducedMotion()) {
-      mod.showBrush(roots);
-      return null;
-    }
-    mod.hideBrush(roots);
-    return mod.writeBrush(roots, { durationMs }).play();
+  const tick = useCallback(() => {
+    let n = 0;
+    return () => {
+      if (n++ % 3 === 0) play("tick");
+    };
   }, []);
+
+  const typeQuick = useCallback(
+    (containers: Element[], durationMs: number) => {
+      const mod = exp.current;
+      if (!mod || !containers.length) return null;
+      if (prefersReducedMotion()) {
+        mod.fillLines(containers);
+        return null;
+      }
+      const typing = mod.typeLines(containers, { durationMs, lineGap: 2, onKey: tick() });
+      typing.timeline.play();
+      return typing;
+    },
+    [tick],
+  );
 
   const seal = useCallback(() => {
     const mod = exp.current;
     if (!mod) return;
-    const sealEl = $("[data-seal]");
-    if (sealEl && !prefersReducedMotion()) mod.stampSeal(sealEl);
-    const subline = $("[data-subline]");
-    const cont = $("[data-continue]");
     if (!prefersReducedMotion()) {
-      if (subline) mod.fadeIn(subline, 0.35, 0.8);
-      if (cont) mod.fadeIn(cont, 1.2, 0.6);
+      const sealEl = $("[data-seal]");
+      if (sealEl) mod.stampSeal(sealEl, $("[data-panel]"));
+      const subline = $("[data-subline]");
+      const cont = $("[data-continue]");
+      if (subline) mod.fadeIn(subline, 0.45, 0.6);
+      if (cont) mod.fadeIn(cont, 1.1, 0.5);
     }
     go("sealed");
   }, [go]);
@@ -120,20 +145,21 @@ export function Sequence({ children }: { children: ReactNode }) {
     startScroll();
     lock(true);
     $("#vow")?.focus({ preventScroll: true });
-    const roots = $$(".vow-line .brush");
+    const lines = $$("#vow [data-type-line]");
     if (prefersReducedMotion()) {
-      mod.showBrush(roots);
+      mod.fillLines(lines);
       seal();
       return;
     }
-    go("writing");
-    writing.current = mod.writeBrush(roots, {
-      durationMs: motion.vowWriteMs,
-      finale: { pauseMs: 280, strokeMs: 460 },
+    go("typing");
+    vowTyping.current = mod.typeLines(lines, {
+      durationMs: motion.vowTypeMs,
+      cursor: $("#vow .term-cursor"),
+      onKey: tick(),
+      onDone: seal,
     });
-    writing.current.eventCallback("onComplete", seal);
-    writing.current.play();
-  }, [go, seal, startScroll]);
+    vowTyping.current.timeline.play();
+  }, [go, seal, startScroll, tick]);
 
   /* ---------- loading: the blade is drawn by real work ---------- */
 
@@ -149,16 +175,30 @@ export function Sequence({ children }: { children: ReactNode }) {
           (window as unknown as { __tb: unknown }).__tb = { gsap: mod.gsap };
         }
         if (!reduced && (phaseRef.current === "threshold" || phaseRef.current === "entering")) {
-          // Everything the brush will write goes back into the inkwell, unseen behind the Threshold.
-          mod.hideBrush($$(".vow-line .brush, .blade-label, .stub-title .brush, .stub-line .brush, .blade-line .brush"));
+          // Everything that will be typed is blanked, unseen behind the Threshold.
+          mod.clearLines($$("main [data-type-line]"));
         }
       }),
       document.fonts.ready,
       document.readyState === "complete" ? Promise.resolve() : new Promise((r) => window.addEventListener("load", r, { once: true })),
     ];
-    tasks.forEach((t) => t.then(() => setProgress(++done / tasks.length)));
+    // The blade is drawn by real loading, but never faster than the ceremony's minimum.
+    let real = 0;
+    let frame = 0;
+    const draw = () => {
+      const paced = reduced ? 1 : Math.min(1, (performance.now() - started) / MIN_CEREMONY_MS);
+      setProgress(Math.min(real, paced));
+      if (Math.min(real, paced) < 1) frame = requestAnimationFrame(draw);
+    };
+    tasks.forEach((t) =>
+      t.then(() => {
+        real = ++done / tasks.length;
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(draw);
+      }),
+    );
     Promise.all(tasks).then(() => {
-      const wait = reduced ? 0 : Math.max(0, MIN_CEREMONY_MS - (performance.now() - started));
+      const wait = reduced ? 0 : Math.max(0, MIN_CEREMONY_MS - (performance.now() - started)) + 120;
       window.setTimeout(() => setReady(true), wait);
     });
 
@@ -169,11 +209,10 @@ export function Sequence({ children }: { children: ReactNode }) {
       /* no storage */
     }
     if (entered) {
-      // Second visit this session: no ceremony, straight to the writing.
+      // Second visit this session: no ceremony, straight to the typing.
       phaseRef.current = "entering";
       document.documentElement.dataset.phase = "returning";
       tasks[0]!.then(() => begin());
-      // begin() calls go(); the state update happens after the chunk loads, not in this effect.
     } else {
       document.documentElement.dataset.phase = "threshold";
     }
@@ -181,51 +220,56 @@ export function Sequence({ children }: { children: ReactNode }) {
     window.scrollTo(0, 0);
     document.documentElement.classList.add("is-locked");
     return () => {
-      writing.current?.kill();
+      vowTyping.current?.timeline.kill();
       lenis.current?.destroy();
+      stopParallax.current?.();
+      crt.current?.destroy();
     };
     // Runs once: the ceremony happens once per page load.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /** Any click (or scroll) during the writing finishes it at once. */
-  const completeWriting = () => {
-    const tl = writing.current;
-    if (tl && tl.progress() < 1) tl.progress(1);
-  };
+  /** Any click (or scroll) during the typing finishes it at once. */
+  const completeTyping = () => vowTyping.current?.finish();
 
-  /* ---------- the cut ---------- */
+  /* ---------- arriving at a scene ---------- */
 
   const arrive = useCallback(
     (scene: HTMLElement) => {
       scene.focus({ preventScroll: true });
-      scene.dataset.arrived = "";
-      const targets = $$(".blade-label, .stub-title .brush, .stub-line .brush", scene).filter((el) => !written.current.has(el));
-      targets.forEach((el) => written.current.add(el));
-      if (targets.length) writePhrases(targets, scene.id === "blades" ? 900 : 1300);
+      if (arrived.current.has(scene)) return;
+      arrived.current.add(scene);
+      const mod = exp.current;
+      if (!mod) return;
+      const title = $("[data-smear]", scene);
+      if (title && !prefersReducedMotion()) mod.smearIn(title);
+      const lines = $$("[data-type-line]", scene).filter((l) => !l.closest(".hud-lines"));
+      if (lines.length) window.setTimeout(() => typeQuick(lines, 900), prefersReducedMotion() ? 0 : 220);
     },
-    [writePhrases],
+    [typeQuick],
   );
 
-  const cutTo = useCallback(
+  /* ---------- the glitch slash ---------- */
+
+  const slashTo = useCallback(
     async (to: HTMLElement, origin: { x: number; y: number }) => {
       const mod = exp.current;
-      if (!mod || cuttingRef.current) return;
+      if (!mod || slashingRef.current) return;
       const from = $$<HTMLElement>("main [data-scene]").find((s) => {
         const r = s.getBoundingClientRect();
         return r.top <= window.innerHeight / 2 && r.bottom >= window.innerHeight / 2;
       });
       if (!from || from === to) return;
-      cuttingRef.current = true;
-      setCutting(true);
-      document.documentElement.classList.remove("is-breathing");
-      const mode = pickCutMode(prefersReducedMotion(), flags.cut.webgl && Boolean(slash.current));
-      await mod.runCut({
+      slashingRef.current = true;
+      setSlashing(true);
+      document.documentElement.classList.remove("is-drifting");
+      const mode = pickCutMode(prefersReducedMotion(), flags.crt.webgl);
+      await mod.glitchSlash({
         from,
         origin,
         mode,
-        webgl: slash.current,
-        onSlash: () => play("cut"),
+        onImpact: () => play("slash"),
+        intensity: (v) => crt.current?.setIntensity(v),
         reveal: () => {
           if (phaseRef.current !== "free") {
             go("free");
@@ -234,36 +278,36 @@ export function Sequence({ children }: { children: ReactNode }) {
           scrollTo(to);
         },
       });
-      cuttingRef.current = false;
-      setCutting(false);
+      slashingRef.current = false;
+      setSlashing(false);
       arrive(to);
     },
     [arrive, go],
   );
 
+  /** The slash out of the vow lands on "kept._". */
   const continueToHub = useCallback(() => {
     const hub = $("#blades");
-    const jade = $("[data-jade]") ?? $("[data-seal]");
-    if (hub) void cutTo(hub, jade ? center(jade) : { x: window.innerWidth / 2, y: window.innerHeight / 2 });
-  }, [cutTo]);
+    const mark = $("#vow .kept") ?? $("[data-seal]");
+    if (hub) void slashTo(hub, mark ? center(mark) : { x: window.innerWidth / 2, y: window.innerHeight / 2 });
+  }, [slashTo]);
 
   /* ---------- entering ---------- */
 
   const enter = (withSound: boolean) => {
     remember(withSound ? "sound" : "silence");
-    if (withSound) void enableSound().then(() => play("drone"));
-    if (flags.cut.webgl && pickCutMode(prefersReducedMotion(), true) === "webgl") {
-      void import("@/motion/cut/webglSlash").then((m) => (slash.current = m.createWebglSlash()));
+    if (withSound) void enableSound().then(() => play("power"));
+    if (flags.crt.webgl && pickCutMode(prefersReducedMotion(), true) === "webgl") {
+      void import("@/motion/crt/webglCrt").then((m) => (crt.current = m.createWebglCrt()));
     }
     go("entering");
-    window.setTimeout(begin, prefersReducedMotion() ? 0 : 450);
+    window.setTimeout(begin, prefersReducedMotion() ? 0 : 420);
   };
 
   const skip = () => {
     remember("silence");
-    const mod = exp.current;
-    if (mod) mod.showBrush($$(".brush"));
-    $$(".brush").forEach((el) => written.current.add(el));
+    exp.current?.fillLines($$("main [data-type-line]"));
+    $$("main [data-scene]").forEach((s) => s.id !== "blades" && arrived.current.add(s));
     startScroll();
     go("free");
     lock(false);
@@ -280,10 +324,10 @@ export function Sequence({ children }: { children: ReactNode }) {
   /* ---------- input during the vow ---------- */
 
   useEffect(() => {
-    if (phase !== "writing" && phase !== "sealed") return;
+    if (phase !== "typing" && phase !== "sealed") return;
     const advance = () => {
-      if (cuttingRef.current) return;
-      if (phaseRef.current === "writing") completeWriting();
+      if (slashingRef.current) return;
+      if (phaseRef.current === "typing") completeTyping();
       else continueToHub();
     };
     const onWheel = (e: WheelEvent) => {
@@ -306,7 +350,7 @@ export function Sequence({ children }: { children: ReactNode }) {
       }
     };
     const onPointer = () => {
-      if (phaseRef.current === "writing") completeWriting();
+      if (phaseRef.current === "typing") completeTyping();
     };
     window.addEventListener("wheel", onWheel, { passive: false });
     window.addEventListener("keydown", onKey);
@@ -322,15 +366,34 @@ export function Sequence({ children }: { children: ReactNode }) {
     };
   }, [phase, continueToHub]);
 
-  /* ---------- clicks: continue, cuts, blade lines ---------- */
+  /* ---------- the hub menu, slashes on click ---------- */
 
   useEffect(() => {
+    const hub = () => $("#blades");
+    const items = () => $$<HTMLAnchorElement>("#blades .hud-item");
+
+    /** One active blade at most; its line shows only while it is active. */
+    const activate = (item: Element | null) => {
+      const h = hub();
+      if (!h) return;
+      const id = item?.getAttribute("data-blade") ?? null;
+      if ((h.dataset.active ?? null) === id) return;
+      lineTyping.current?.finish();
+      if (!id) {
+        delete h.dataset.active;
+        return;
+      }
+      h.dataset.active = id;
+      const line = $(`[data-blade-line="${id}"]`, h);
+      if (line) lineTyping.current = typeQuick([line], 420);
+    };
+
     const onClick = (e: MouseEvent) => {
       const target = e.target instanceof Element ? e.target : null;
       if (!target) return;
       if (target.closest("[data-continue]")) {
         e.preventDefault();
-        if (phaseRef.current === "writing") completeWriting();
+        if (phaseRef.current === "typing") completeTyping();
         else if (phaseRef.current === "sealed") continueToHub();
         return;
       }
@@ -339,56 +402,68 @@ export function Sequence({ children }: { children: ReactNode }) {
         const dest = $(link.hash);
         if (!dest) return;
         e.preventDefault();
-        const mark = link.querySelector(".blade-stroke") ?? link;
-        void cutTo(dest, center(mark));
+        // The slash lands on the chosen item itself.
+        void slashTo(dest, center(link));
       }
     };
-
-    const showLine = (blade: Element | null) => {
-      const hub = $("#blades");
-      const id = blade?.getAttribute("data-blade");
-      if (!hub || !id || hub.dataset.line === id) {
-        if (hub && id) hub.dataset.active = id;
-        return;
-      }
-      hub.dataset.active = id;
-      hub.dataset.line = id;
-      lineTl.current?.progress(1).kill();
-      const root = $(`[data-blade-line="${id}"] .brush`);
-      if (root) lineTl.current = writePhrases([root], 800);
+    const onOver = (e: Event) => {
+      const item = e.target instanceof Element ? e.target.closest("#blades .hud-item") : null;
+      if (item) activate(item);
     };
-    const onOver = (e: Event) => showLine(e.target instanceof Element ? e.target.closest("[data-blade]") : null);
-    const onOut = (e: Event) => {
-      const hub = $("#blades");
-      const blade = e.target instanceof Element ? e.target.closest("[data-blade]") : null;
-      if (hub && blade) delete hub.dataset.active;
+    const onOut = (e: PointerEvent) => {
+      const from = e.target instanceof Element ? e.target.closest("#blades .hud-item") : null;
+      const to = e.relatedTarget instanceof Element ? e.relatedTarget.closest("#blades .hud-item") : null;
+      if (from && !to) activate(document.activeElement?.closest("#blades .hud-item") ?? null);
+    };
+    const onFocusIn = (e: FocusEvent) => {
+      const item = e.target instanceof Element ? e.target.closest("#blades .hud-item") : null;
+      if (item) activate(item);
+    };
+    const onFocusOut = (e: FocusEvent) => {
+      const to = e.relatedTarget instanceof Element ? e.relatedTarget.closest("#blades .hud-item") : null;
+      const hovered = $("#blades .hud-item:hover");
+      if (!to) activate(hovered);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (phaseRef.current !== "free" || !["ArrowDown", "ArrowUp"].includes(e.key)) return;
+      const h = hub();
+      const list = items();
+      const inHub = h && (document.activeElement === h || h.contains(document.activeElement));
+      if (!h || !inHub || !list.length) return;
+      e.preventDefault();
+      const current = list.indexOf(document.activeElement as HTMLAnchorElement);
+      const step = e.key === "ArrowDown" ? 1 : -1;
+      const next = current < 0 ? (step > 0 ? 0 : list.length - 1) : (current + step + list.length) % list.length;
+      list[next]!.focus();
     };
 
     document.addEventListener("click", onClick);
     document.addEventListener("pointerover", onOver);
-    document.addEventListener("focusin", onOver);
     document.addEventListener("pointerout", onOut);
-    document.addEventListener("focusout", onOut);
+    document.addEventListener("focusin", onFocusIn);
+    document.addEventListener("focusout", onFocusOut);
+    document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("click", onClick);
       document.removeEventListener("pointerover", onOver);
-      document.removeEventListener("focusin", onOver);
       document.removeEventListener("pointerout", onOut);
-      document.removeEventListener("focusout", onOut);
+      document.removeEventListener("focusin", onFocusIn);
+      document.removeEventListener("focusout", onFocusOut);
+      document.removeEventListener("keydown", onKey);
     };
-  }, [continueToHub, cutTo, writePhrases]);
+  }, [continueToHub, slashTo, typeQuick]);
 
-  /* ---------- scenes reached by scrolling get written too ---------- */
+  /* ---------- scenes reached by scrolling arrive too ---------- */
 
   useEffect(() => {
     if (phase !== "free") return;
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting && !cuttingRef.current) arrive(entry.target as HTMLElement);
+          if (entry.isIntersecting && !slashingRef.current) arrive(entry.target as HTMLElement);
         }
       },
-      { threshold: 0.45 },
+      { threshold: 0.5 },
     );
     $$("main [data-scene]").forEach((s) => io.observe(s));
     return () => io.disconnect();
@@ -404,8 +479,11 @@ export function Sequence({ children }: { children: ReactNode }) {
       <main id="content" inert={phase === "threshold"}>
         {children}
       </main>
-      <MuteToggle visible={!showThreshold} />
-      <BladeCursor trail={!reducedMotion} />
+      <div className="hud" data-visible={showThreshold ? undefined : ""}>
+        <StatusLine city={city} />
+        <MuteToggle visible={!showThreshold} />
+      </div>
+      <Reticle />
     </>
   );
 }

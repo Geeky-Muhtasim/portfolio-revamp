@@ -6,15 +6,15 @@
 
 export const flags = {
   bangla: {
-    /** Brush-lettered Bangla vow beneath the English one. Slot exists in the Vow scene. */
+    /** A Bangla version of the vow beneath the English one. Slot exists in the Vow scene. */
     vow: false,
   },
   sound: {
     /** Sound stays off until the visitor picks "Enter with sound". */
     defaultOn: false,
   },
-  cut: {
-    /** WebGL edge glow on capable desktops. Mobile and low-power devices always use clip-path. */
+  crt: {
+    /** OGL scanlines, grain and gate weave on capable desktops; everyone else gets the CSS layer. */
     webgl: true,
   },
   trials: {
@@ -26,7 +26,7 @@ export const flags = {
     napMode: true,
     stubbornNavigation: true,
     midnightTraining: true,
-    meditationCut: true,
+    focusCut: true,
     tripleSeal: true,
     consoleNote: true,
     endlessRoad: true,
@@ -34,7 +34,8 @@ export const flags = {
 } as const;
 
 export const threshold = {
-  word: "Draw.",
+  boot: "BOOT // THREE BLADES",
+  loadLabel: "LOAD",
   withSound: "Enter with sound",
   inSilence: "Enter in silence",
   skip: "Skip the ceremony",
@@ -50,10 +51,25 @@ export const vow = {
     "Guard what no one sees.",
     "I don't sheathe the blade until it's kept.",
   ],
-  /** The word whose last stroke lands in jade. */
+  /** The last word, typed in signal red with the cursor left blinking after it. */
   keptWord: "kept",
   sublineAfterName: ["Engineer.", "Researcher.", "Still training."],
   continueHint: "Scroll to continue",
+} as const;
+
+/** HUD episode codes. Scene 1 is the boot; the vow is episode one. */
+export const episodes = {
+  vow: { code: "EP.01", title: "THE VOW" },
+  blades: { code: "EP.02", title: "THREE BLADES" },
+  research: { code: "EP.03", title: "BLADE I" },
+  engineering: { code: "EP.04", title: "BLADE II" },
+  security: { code: "EP.05", title: "BLADE III" },
+} as const;
+
+export const hud = {
+  signal: "SIGNAL OK",
+  /** The time shown beside the city is that city's own time. */
+  timeZone: "Asia/Dhaka",
 } as const;
 
 export type BladeId = "research" | "engineering" | "security";

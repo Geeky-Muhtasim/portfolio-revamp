@@ -18,6 +18,19 @@ const FORBIDDEN_NAMES = [
 const EM_DASH = String.fromCharCode(0x2014);
 const BANNED = ["passionate", "cutting-edge", "seamless", "leverage", "innovative", "unlock", "journey", "hi, i'm", "welcome to my portfolio"];
 
+/** The first prototype's palette, and pure black, which the cel world never uses. */
+const RETIRED = [
+  /jade/i,
+  /#1fa37a/i,
+  /#0e5c45/i,
+  /#0b0c0c/i,
+  /#ede6d6/i,
+  /#8a9196/i,
+  /--(ink|paper|steel)\b/,
+  /#000(000)?(?![0-9a-f])/i,
+  /background(-color)?:\s*(black\b|#000(000)?(?![0-9a-f]))/i,
+];
+
 /** Banned words that are allowed in exactly these places, and why. */
 const ALLOW = [
   { paths: ["content/portfolio.md", "out/plain"], word: "passionate", why: "Research Statement kept verbatim at the owner's request" },
@@ -53,6 +66,14 @@ for (const file of files) {
 
   let i = text.indexOf(EM_DASH);
   if (i >= 0) hits.push(`${rel}:${lineOf(i)}  em dash`);
+
+  // The retired palette and pure black: none of it may survive in shipped code.
+  if (!rel.startsWith("scripts/check-copy")) {
+    for (const old of RETIRED) {
+      const m = old.exec(text);
+      if (m) hits.push(`${rel}:${lineOf(m.index)}  retired palette "${m[0]}"`);
+    }
+  }
 
   for (const name of FORBIDDEN_NAMES) {
     const at = lower.indexOf(name);
