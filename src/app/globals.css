@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "../styles/tokens.css";
 @import "../styles/scenes.css";
+@import "../styles/episodes.css";
 
 @theme inline {
   --color-night-green: var(--night-green);
@@ -30,7 +31,8 @@
   body {
     margin: 0;
     background: var(--night-green);
-    font-family: var(--font-body);
+    /* The site speaks in mono; /plain switches to Plex Sans for long reading. */
+    font-family: var(--font-mono);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -81,6 +83,7 @@
 
 /* /plain: readable, nothing more */
 .plain {
+  font-family: var(--font-body);
   max-width: var(--measure);
   margin: 0 auto;
   padding: 3rem var(--space-gutter) 6rem;

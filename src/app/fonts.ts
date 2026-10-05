@@ -1,4 +1,4 @@
-import { IBM_Plex_Mono, IBM_Plex_Sans, Tiro_Bangla } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import localFont from "next/font/local";
 
 /*
@@ -36,12 +36,14 @@ export const plexSans = IBM_Plex_Sans({
   variable: "--font-plex-sans",
 });
 
-export const tiroBangla = Tiro_Bangla({
-  weight: ["400"],
-  subsets: ["bengali"],
+/** Only the Bangla the site shows (scripts/fetch-fonts.mjs, tested against site.ts). */
+export const tiroBangla = localFont({
+  src: "./fonts/tiro-bangla-400-subset.woff2",
+  weight: "400",
   display: "swap",
   preload: false,
   variable: "--font-tiro-bangla",
+  fallback: ["serif"],
 });
 
 export const fontVariables = [plexMono, shippori, plexSans, tiroBangla].map((f) => f.variable).join(" ");
