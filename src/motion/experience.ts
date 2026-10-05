@@ -10,6 +10,7 @@ export { createLenis } from "./lenis";
 export { clearLines, fillLines, typeLines } from "./typing/typer";
 export { glitchSlash } from "./slash/glitchSlash";
 export { startParallax } from "./parallax/parallax";
+export { initScenes } from "./scenes/choreography";
 
 /** The seal lands with weight: oversized, slammed down, and the panel takes the hit. */
 export function stampSeal(seal: Element, panel: Element | null) {

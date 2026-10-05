@@ -39,11 +39,13 @@ function buildCity() {
   }
   const outline = `M0 ${CITY_H} ` + buildings.map((b) => `V${b.top} H${b.x + b.w}`).join(" ") + ` V${CITY_H} Z`;
 
-  const windows: Array<{ x: number; y: number; tone: "gold" | "phosphor" }> = [];
+  const windows: Array<{ x: number; y: number; tone: "gold" | "phosphor"; night: boolean }> = [];
   for (const b of buildings) {
     for (let wy = b.top + 18; wy < CITY_H - 40; wy += 26) {
       for (let wx = b.x + 12; wx < b.x + b.w - 14; wx += 22) {
-        if (rand() < 0.11) windows.push({ x: wx, y: wy, tone: rand() < 0.18 ? "phosphor" : "gold" });
+        const roll = rand();
+        // Some windows are lit at dusk; more come on after dark.
+        if (roll < 0.2) windows.push({ x: wx, y: wy, tone: rand() < 0.18 ? "phosphor" : "gold", night: roll >= 0.11 });
       }
     }
   }
@@ -64,10 +66,11 @@ export function CelWorld() {
   return (
     <div className="world" aria-hidden="true">
       <svg className="w-layer w-sky" viewBox="0 0 100 100" preserveAspectRatio="none" shapeRendering="crispEdges">
-        <rect width="100" height="100" fill="var(--dusk-green)" />
-        <rect width="100" height="30" fill="var(--sky-high)" />
-        <rect y="30" width="100" height="24" fill="var(--moss)" />
-        <rect y="54" width="100" height="17" fill="var(--sunset-amber)" />
+        {/* Band colours come from the time of day: dusk by default, dawn and night by scene. */}
+        <rect className="w-band" width="100" height="100" fill="var(--band-base)" />
+        <rect className="w-band" width="100" height="30" fill="var(--band-a)" />
+        <rect className="w-band" y="30" width="100" height="24" fill="var(--band-b)" />
+        <rect className="w-band" y="54" width="100" height="17" fill="var(--band-c)" />
       </svg>
 
       <svg className="w-layer w-sun" viewBox="0 0 200 200" data-parallax="0.04">
@@ -79,6 +82,12 @@ export function CelWorld() {
           <rect x="0" y="143" width="200" height="11" />
           <rect x="0" y="167" width="200" height="15" />
         </g>
+      </svg>
+
+      {/* After dark the light source is the moon: a flat cream crescent. */}
+      <svg className="w-layer w-moon" viewBox="0 0 100 100" data-parallax="0.03">
+        <circle cx="50" cy="50" r="40" fill="var(--cel-cream)" />
+        <circle cx="66" cy="40" r="36" fill="var(--band-a)" />
       </svg>
 
       <svg className="w-layer w-hills" viewBox={`0 0 ${CITY_W} 200`} preserveAspectRatio="xMidYMax slice" data-parallax="0.08">
@@ -94,7 +103,16 @@ export function CelWorld() {
         <path d={city.outline} fill="var(--skyline)" stroke="var(--outline)" strokeWidth="3" strokeLinejoin="miter" />
         <g shapeRendering="crispEdges">
           {city.windows.map((w, i) => (
-            <rect key={i} data-window={i} className="w-window" x={w.x} y={w.y} width="10" height="11" fill={w.tone === "gold" ? "var(--sun-gold)" : "var(--phosphor)"} />
+            <rect
+              key={i}
+              data-window={i}
+              className={w.night ? "w-window w-window-night" : "w-window"}
+              x={w.x}
+              y={w.y}
+              width="10"
+              height="11"
+              fill={w.tone === "gold" ? "var(--sun-gold)" : "var(--phosphor)"}
+            />
           ))}
         </g>
       </svg>
