@@ -121,7 +121,7 @@ describe("real portfolio.md", () => {
   });
 
   it("contains no em dashes", () => {
-    expect(source.includes("—")).toBe(false);
+    expect(source.includes(String.fromCharCode(0x2014))).toBe(false);
   });
 });
 
