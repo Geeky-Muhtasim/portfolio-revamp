@@ -65,7 +65,7 @@ I am passionate about making Large Language Models safer, more interpretable, an
 ### BSc in Computer Science and Engineering
 - institution: Independent University, Bangladesh (IUB)
 - period: Jan 2020 – Nov 2024
-- thesis: PACE: Python AI Companion for Enhanced Learning
+- thesis: PACE: Python AI Companion for Enhanced Engagement
 - thesisDescription: LLM-powered intelligent tutoring system for Python programming education
 - supervisor: Dr. Amin Ahsan Ali
 - coursework: Artificial Intelligence, Image Processing, Web Application and Internet, Numerical Methods, Linear Algebra, Calculus
