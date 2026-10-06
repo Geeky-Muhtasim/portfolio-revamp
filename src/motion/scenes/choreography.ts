@@ -153,13 +153,19 @@ export async function initScenes({ lenis, reduced }: { lenis: Lenis | null; redu
   /* Engineering: paper in, the slash, traces, the board. On a phone the board is a plain grid. */
   const eng = $("#blade-engineering .track");
   if (eng && window.matchMedia("(min-width: 900px)").matches) {
-    const tl = gsap.timeline();
     const papers = $$(".eng-paper", eng);
+    // Every piece starts in its "before" state now. Staggered tweens only pre-render their first
+    // target, so without this the board would sit there finished until the scrub first passed it.
+    gsap.set(papers, { x: -900, rotation: -24, opacity: 0 });
+    gsap.set($$(".eng-trace", eng), { strokeDashoffset: 1 });
+    gsap.set($$(".eng-via", eng), { opacity: 0 });
+    gsap.set($$(".eng-node-wrap", eng), { scale: 0.4, opacity: 0 });
+    const tl = gsap.timeline();
     tl.fromTo(papers, { x: -900, rotation: -24, opacity: 0 }, { x: 0, rotation: 0, opacity: 1, duration: 0.24, stagger: 0.02, ease: "power2.out" }, 0);
     tl.fromTo(".eng-slash", { scaleX: 0, rotation: -20, opacity: 1 }, { scaleX: 1, rotation: -20, duration: 0.05, ease: "power2.in" }, 0.3);
     tl.to(papers, { opacity: 0, scale: 0.5, y: (i) => (i % 2 ? 40 : -40), duration: 0.12, stagger: 0.01 }, 0.36);
     tl.to(".eng-slash", { opacity: 0, duration: 0.06 }, 0.38);
-    tl.fromTo(".eng-trace", { attr: { "stroke-dashoffset": 1 } }, { attr: { "stroke-dashoffset": 0 }, duration: 0.3, stagger: 0.012, ease: "none" }, 0.42);
+    tl.fromTo(".eng-trace", { strokeDashoffset: 1 }, { strokeDashoffset: 0, autoRound: false, duration: 0.3, stagger: 0.012, ease: "none" }, 0.42);
     tl.fromTo(".eng-via", { opacity: 0 }, { opacity: 1, duration: 0.05, stagger: 0.01 }, 0.6);
     tl.fromTo(".eng-node-wrap", { scale: 0.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.12, stagger: 0.015, ease: "back.out(2)" }, 0.55);
     tl.to({}, { duration: 0.1 });
