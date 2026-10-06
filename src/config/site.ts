@@ -161,8 +161,20 @@ export const blades: ReadonlyArray<{ id: BladeId; numeral: string; label: string
   },
 ];
 
+/** Easter egg copy, from the brief. */
+export const eggCopy = {
+  wrongTurnCode: "ROUTE NOT FOUND.",
+  wrongTurnLine: "Even the best swordsmen get lost.",
+  wrongTurnLink: "Back to the start",
+  midnight: "Still training? Same.",
+  consoleNote: "Reading the source? You're lost. Good. Keep exploring.",
+  nap: "zzz",
+} as const;
+
 /** Small interface words. */
 export const ui = {
+  contact: "Contact",
+  sealLabel: "MIS seal",
   bladePrefix: "Blade",
   backToBlades: "Back to the blades",
   sound: "Sound",

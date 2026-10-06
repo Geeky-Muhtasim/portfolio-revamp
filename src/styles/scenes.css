@@ -518,9 +518,17 @@ html[data-phase="returning"] .threshold {
   place-items: center;
   width: 3.4em;
   height: 3.4em;
+  padding: 0;
+  border: 0;
   background: var(--crimson);
+  font: inherit;
   transform: rotate(-8deg);
   box-shadow: 5px 5px 0 var(--outline);
+  cursor: pointer;
+}
+.seal:active {
+  /* A single press only gives a little: the stamp under the thumb. */
+  transform: rotate(-8deg) scale(0.94);
 }
 .seal-frame {
   position: absolute;
@@ -762,18 +770,68 @@ html:not([data-phase]) .scene-blades:has([data-blade="security"]:is(:hover, :foc
   left: var(--space-gutter);
   bottom: max(1rem, env(safe-area-inset-bottom));
   z-index: 55;
+  display: grid;
+  justify-items: start;
+  gap: 0.3rem;
+  font: 500 0.7rem/1 var(--font-mono);
+  letter-spacing: 0.12em;
+}
+.hud-status p {
   margin: 0;
   padding: 0.4em 0.6em;
   background: var(--outline);
   color: var(--phosphor);
-  font: 500 0.7rem/1 var(--font-mono);
-  letter-spacing: 0.12em;
 }
-.hud-mute {
+.hud-status .hud-midnight {
+  color: var(--cel-cream);
+}
+.hud-status .hud-midnight[hidden] {
+  display: none;
+}
+.hud-tr {
   position: fixed;
   top: max(1rem, env(safe-area-inset-top));
   right: var(--space-gutter);
   z-index: 55;
+  display: flex;
+  gap: 0.4rem;
+}
+.hud-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.5em 0.7em;
+  background: var(--outline);
+  color: var(--phosphor);
+  font: 500 0.7rem/1 var(--font-mono);
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  visibility: hidden;
+}
+.hud-contact[data-visible] {
+  visibility: visible;
+}
+.hud-contact:hover,
+.hud-contact:focus-visible {
+  color: var(--cel-cream);
+}
+/* The arrow points down the page, toward Cross Blades... */
+.hud-arrow {
+  width: 0.5em;
+  height: 0.5em;
+  margin-top: -0.25em;
+  border-right: 2px solid var(--signal-red);
+  border-bottom: 2px solid var(--signal-red);
+  transform: rotate(45deg);
+  transition: transform 90ms steps(2);
+}
+/* ...unless asked three times in a hurry. */
+.hud-contact.is-stubborn .hud-arrow {
+  margin-top: 0.25em;
+  transform: rotate(-135deg);
+}
+.hud-mute {
   padding: 0.5em 0.7em;
   border: 0;
   background: var(--outline);
@@ -879,6 +937,15 @@ html.is-drifting .w-sun circle {
     top: max(1rem, env(safe-area-inset-top));
     bottom: auto;
   }
+  /* The top row is full on a phone: Contact moves to the bottom right corner. */
+  .hud-contact {
+    position: fixed;
+    right: var(--space-gutter);
+    bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  html:has(.eng-card.is-open) .hud-contact {
+    visibility: hidden;
+  }
   .vow-stage {
     margin: 0 auto;
   }
@@ -897,5 +964,113 @@ html.is-drifting .w-sun circle {
   main,
   .crt-grain {
     animation: none;
+  }
+}
+
+/* ---------- easter eggs ---------- */
+
+/* Wrong turn: the confession types itself in, then the cursor blinks after it. */
+.wrong-turn-line {
+  margin-top: 0.9rem;
+  color: var(--phosphor);
+}
+.typed-in {
+  display: inline-block;
+  animation: type-in 1300ms steps(var(--chars)) 500ms both;
+}
+@keyframes type-in {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+.wrong-turn-line .term-cursor {
+  animation: blink 1.05s steps(1) infinite, arrive 1ms 1800ms both;
+}
+
+/* Nap mode: the CRT dims to a screensaver; "zzz" types over and over. */
+.nap {
+  position: fixed;
+  inset: 0;
+  z-index: 57;
+  display: grid;
+  place-items: center;
+  background: rgb(14 31 27 / 0.72);
+  pointer-events: none;
+  animation: nap-dim 900ms ease both;
+}
+@keyframes nap-dim {
+  from { opacity: 0; }
+}
+.nap-line {
+  min-width: 4ch;
+  padding: 0.35em 0.8em;
+  background: var(--outline);
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  letter-spacing: 0.2em;
+  color: var(--phosphor);
+  text-shadow: 0 0 0.5em rgb(127 224 160 / 0.45);
+}
+html.is-napping .reticle {
+  opacity: 0;
+}
+
+/* The focus cut: crimson light gathers inside the reticle while it is held. */
+html.is-charging,
+html.is-charging * {
+  user-select: none;
+}
+.reticle::after {
+  content: "";
+  position: absolute;
+  inset: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  translate: -50% -50%;
+  background: radial-gradient(circle, rgb(236 108 94 / 0.9), rgb(178 58 46 / 0.45) 50%, transparent 72%);
+  opacity: 0;
+  pointer-events: none;
+}
+html.is-charging .reticle::after {
+  width: calc(10px + var(--charge, 0) * 62px);
+  height: calc(10px + var(--charge, 0) * 62px);
+  opacity: calc(0.25 + var(--charge, 0) * 0.75);
+}
+html.is-charging .reticle i:not(.r-dot) {
+  border-color: var(--signal-red);
+}
+html.is-charging .reticle.is-charged i:not(.r-dot) {
+  border-color: var(--crimson);
+  border-width: 2px;
+}
+.reticle.is-charged::after {
+  animation: charged 420ms steps(2) infinite;
+}
+@keyframes charged {
+  50% { opacity: 0.6; }
+}
+
+/* Endless road: a reboot warms the tube from the centre line again. */
+.reboot {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  pointer-events: none;
+}
+.reboot .cover-top,
+.reboot .cover-bottom {
+  animation-duration: 820ms;
+}
+.reboot .tube-flash {
+  animation-duration: 820ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .typed-in,
+  .wrong-turn-line .term-cursor,
+  .nap {
+    animation: none;
+  }
+  .reboot {
+    display: none;
   }
 }

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { parsePortfolio } from "@/content/parse";
-import { blades, crew, episodes, hud, sceneLines, threshold, trials, ui, vow } from "./site";
+import { blades, crew, eggCopy, episodes, hud, sceneLines, threshold, trials, ui, vow } from "./site";
 
 const portfolio = parsePortfolio(readFileSync("content/portfolio.md", "utf8"));
 
@@ -16,6 +16,7 @@ const allCopy = [
   ...Object.values(sceneLines),
   ...trials.map((t) => t.summary),
   ...Object.values(ui),
+  ...Object.values(eggCopy),
   ...Object.values(episodes).flatMap((e) => [e.code, e.title]),
   hud.signal,
 ];

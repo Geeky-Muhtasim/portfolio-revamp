@@ -1,5 +1,6 @@
 import type Lenis from "lenis";
 import { gsap, loadScrollTrigger } from "../gsap";
+import { play, setAmbient } from "../sound/sound";
 
 /*
  * Scene choreography after the hub. Scroll-scrubbed scenes are tall tracks
@@ -74,7 +75,8 @@ function initCards(): () => void {
 function initPowerOff(): () => void {
   const root = document.documentElement;
   const wake = () => {
-    if (!root.classList.contains("is-powered-off")) return;
+    // The endless road egg, when installed, decides what input does in the dark.
+    if (!root.classList.contains("is-powered-off") || root.hasAttribute("data-endless")) return;
     root.classList.remove("is-powered-off");
   };
   const events = ["wheel", "keydown", "pointerdown", "touchstart"] as const;
@@ -93,6 +95,13 @@ export async function initScenes({ lenis, reduced }: { lenis: Lenis | null; redu
     const update = () => ScrollTrigger.update();
     lenis.on("scroll", update);
     cleanups.push(() => lenis.off("scroll", update));
+  }
+
+  // Security has its own weather: rain on a window and a distant city, only while it is on screen.
+  const security = $("#blade-security");
+  if (security) {
+    ScrollTrigger.create({ trigger: security, start: "top 60%", end: "bottom 40%", onToggle: (self) => setAmbient("rain", self.isActive) });
+    cleanups.push(() => setAmbient("rain", false));
   }
 
   // Time of day: each scene that names a time sets it while it holds the middle of the screen.
@@ -239,6 +248,7 @@ export async function initScenes({ lenis, reduced }: { lenis: Lenis | null; redu
         if (!armed) return;
         armed = false;
         root.classList.add("is-powered-off");
+        play("sting");
       },
     });
     ScrollTrigger.create({

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { hud } from "@/config/site";
+import { eggCopy, hud } from "@/config/site";
 
 /*
  * "SIGNAL OK // DHAKA 23:41". The time is Dhaka's own, so the label beside
@@ -23,8 +23,14 @@ const clock = {
 export function StatusLine({ city }: { city: string }) {
   const time = useSyncExternalStore(clock.subscribe, clock.get, clock.server);
   return (
-    <p className="hud-status">
-      {hud.signal} <span aria-hidden="true">{"//"}</span> {city.toUpperCase()} <time>{time}</time>
-    </p>
+    <div className="hud-status">
+      <p className="hud-signal">
+        {hud.signal} <span aria-hidden="true">{"//"}</span> {city.toUpperCase()} <time>{time}</time>
+      </p>
+      {/* Midnight training: shown by the egg between 00:00 and 04:00 local time. */}
+      <p className="hud-midnight" data-midnight="" hidden>
+        {eggCopy.midnight}
+      </p>
+    </div>
   );
 }

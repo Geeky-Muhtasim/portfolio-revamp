@@ -1182,3 +1182,17 @@ html.is-powered-off .hud {
     animation: none;
   }
 }
+
+/* Endless road: in the dark, the dot grows with every screen scrolled toward the reboot. */
+.po-charge {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(6px + var(--reboot, 0) * 34px);
+  height: calc(6px + var(--reboot, 0) * 34px);
+  border-radius: 50%;
+  translate: -50% -50%;
+  border: 1px solid rgb(241 231 207 / calc(var(--reboot, 0) * 0.8));
+  box-shadow: 0 0 calc(var(--reboot, 0) * 18px) rgb(233 184 114 / calc(var(--reboot, 0) * 0.6));
+  transition: width 160ms ease-out, height 160ms ease-out;
+}

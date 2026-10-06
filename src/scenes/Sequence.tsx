@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import type Lenis from "lenis";
-import { flags } from "@/config/site";
+import { flags, ui } from "@/config/site";
 import type { CrtLayer } from "@/motion/crt/webglCrt";
 import { Reticle } from "@/motion/cursor/Reticle";
 import { pickCutMode } from "@/motion/device";
@@ -40,6 +40,14 @@ function remember(value: string) {
   }
 }
 
+/** The scene holding the middle of the screen. */
+function sceneOnScreen() {
+  return $$<HTMLElement>("main [data-scene]").find((s) => {
+    const r = s.getBoundingClientRect();
+    return r.top <= window.innerHeight / 2 && r.bottom >= window.innerHeight / 2;
+  });
+}
+
 function center(el: Element) {
   const r = el.getBoundingClientRect();
   return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
@@ -60,6 +68,8 @@ export function Sequence({ city, children }: { city: string; children: ReactNode
   const stopParallax = useRef<(() => void) | null>(null);
   const stopScenes = useRef<(() => void) | null>(null);
   const scenesStarted = useRef(false);
+  const stopEggs = useRef<(() => void) | null>(null);
+  const eggsStarted = useRef(false);
   const arrived = useRef(new WeakSet<Element>());
   const phaseRef = useRef<Phase>("threshold");
   const slashingRef = useRef(false);
@@ -266,10 +276,7 @@ export function Sequence({ city, children }: { city: string; children: ReactNode
     async (to: HTMLElement, origin: { x: number; y: number }) => {
       const mod = exp.current;
       if (!mod || slashingRef.current) return;
-      const from = $$<HTMLElement>("main [data-scene]").find((s) => {
-        const r = s.getBoundingClientRect();
-        return r.top <= window.innerHeight / 2 && r.bottom >= window.innerHeight / 2;
-      });
+      const from = sceneOnScreen();
       if (!from || from === to) return;
       slashingRef.current = true;
       setSlashing(true);
@@ -405,7 +412,7 @@ export function Sequence({ city, children }: { city: string; children: ReactNode
       if (target.closest("[data-continue]")) {
         e.preventDefault();
         if (phaseRef.current === "typing") completeTyping();
-        else if (phaseRef.current === "sealed") continueToHub();
+        else continueToHub();
         return;
       }
       const link = target.closest<HTMLAnchorElement>("a[data-cut]");
@@ -481,6 +488,34 @@ export function Sequence({ city, children }: { city: string; children: ReactNode
     return () => io.disconnect();
   }, [phase, arrive]);
 
+  /* ---------- easter eggs: loaded once the Threshold is passed ---------- */
+
+  useEffect(() => {
+    if (phase === "threshold" || eggsStarted.current) return;
+    eggsStarted.current = true;
+    void import("@/eggs").then(({ createEggContext, installEggs }) => {
+      stopEggs.current = installEggs(
+        createEggContext({
+          exp: () => exp.current,
+          lenis: () => lenis.current,
+          crtIntensity: (v) => crt.current?.setIntensity(v),
+          reduced: prefersReducedMotion,
+          play,
+          tick,
+          isFree: () => phaseRef.current === "free",
+          busy: () => slashingRef.current,
+          setBusy: (on) => {
+            slashingRef.current = on;
+            setSlashing(on);
+          },
+          vowTyping,
+        }),
+      );
+    });
+  }, [phase, tick]);
+
+  useEffect(() => () => stopEggs.current?.(), []);
+
   const showThreshold = phase === "threshold" || phase === "entering";
 
   return (
@@ -493,7 +528,20 @@ export function Sequence({ city, children }: { city: string; children: ReactNode
       </main>
       <div className="hud" data-visible={showThreshold ? undefined : ""}>
         <StatusLine city={city} />
-        <MuteToggle visible={!showThreshold} />
+        <div className="hud-tr">
+          {/* Contact: a slash straight to Cross Blades, once the visitor is past the vow. */}
+          <a
+            href="#cross-blades"
+            className="hud-contact"
+            data-cut=""
+            data-visible={phase === "free" ? "" : undefined}
+            tabIndex={phase === "free" ? 0 : -1}
+          >
+            {ui.contact}
+            <i className="hud-arrow" aria-hidden="true" />
+          </a>
+          <MuteToggle visible={!showThreshold} />
+        </div>
       </div>
       <Reticle />
     </>

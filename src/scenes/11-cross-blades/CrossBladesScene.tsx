@@ -50,6 +50,7 @@ export function CrossBladesScene({ portfolio }: { portfolio: Portfolio }) {
         <i className="po-top" />
         <i className="po-bottom" />
         <i className="po-dot" />
+        <i className="po-charge" />
       </div>
     </section>
   );
