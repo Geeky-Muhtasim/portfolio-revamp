@@ -44,6 +44,8 @@ export function CrossBladesScene({ portfolio }: { portfolio: Portfolio }) {
           </div>
         </div>
       </div>
+      {/* Empty night after the last panel: the CRT only powers off once the visitor scrolls through it. */}
+      <div className="cross-runout" aria-hidden="true" />
       <div className="power-off" aria-hidden="true">
         <i className="po-top" />
         <i className="po-bottom" />

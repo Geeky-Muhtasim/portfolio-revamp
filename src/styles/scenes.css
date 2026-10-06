@@ -68,9 +68,13 @@
   opacity: 0;
 }
 
-/* Gate weave: the film itself shivers by a fraction of a pixel. */
-.world,
-main {
+/*
+ * Gate weave: the painted film shivers by a fraction of a pixel. Only the
+ * world, never <main>: a transform there would turn every position: fixed
+ * inside the content (the project card sheet, the power-off) into
+ * "fixed to the bottom of the page".
+ */
+.world {
   animation: weave 0.66s steps(1) infinite;
 }
 @keyframes weave {

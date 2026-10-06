@@ -212,17 +212,37 @@ export async function initScenes({ lenis, reduced }: { lenis: Lenis | null; redu
     scrub(crew, tl);
   }
 
-  /* Cross Blades: reaching the very end powers the CRT off. Any input turns it back on. */
-  const cross = $("#cross-blades");
-  if (cross) {
+  /*
+   * Cross Blades: the CRT powers off only after the visitor has scrolled
+   * through the empty run-out below the last panel, never while the panel
+   * is being read. It fires once; any input turns the picture back on; it
+   * re-arms only after scrolling back up above the run-out, so momentum or a
+   * phone's address bar resizing the viewport cannot make it flicker.
+   */
+  const runout = $("#cross-blades .cross-runout");
+  if (runout) {
+    let armed = true;
     ScrollTrigger.create({
-      trigger: cross,
+      trigger: runout,
       start: "bottom bottom+=2",
-      onEnter: () => root.classList.add("is-powered-off"),
-      onLeaveBack: () => root.classList.remove("is-powered-off"),
+      onEnter: () => {
+        if (!armed) return;
+        armed = false;
+        root.classList.add("is-powered-off");
+      },
+    });
+    ScrollTrigger.create({
+      trigger: runout,
+      start: "top bottom",
+      onLeaveBack: () => {
+        armed = true;
+        root.classList.remove("is-powered-off");
+      },
     });
   }
 
+  // A phone's address bar showing and hiding is not a layout change worth re-measuring.
+  ScrollTrigger.config({ ignoreMobileResize: true });
   ScrollTrigger.refresh();
   return () => {
     cleanups.forEach((c) => c());

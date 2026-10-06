@@ -961,6 +961,14 @@ html.scrub .credits-plate {
   font-size: 1rem;
 }
 
+/* Only when the power-off can happen (motion allowed) is there a run-out to scroll through. */
+.cross-runout {
+  height: 0;
+}
+html.scrub .cross-runout {
+  height: 70svh;
+}
+
 /* The CRT powers off: the picture closes to a line, the line to a dot. */
 .power-off {
   position: fixed;
@@ -1106,12 +1114,17 @@ html.is-powered-off .hud {
     height: auto;
     overflow: visible;
   }
+  /* On a phone the open card is a sheet pinned to the bottom of the screen, over the board. */
   html[data-phase] .eng-cards {
     position: fixed;
-    right: 1rem;
-    left: 1rem;
-    bottom: 1rem;
+    right: 0.75rem;
+    left: 0.75rem;
+    bottom: 0.75rem;
+    z-index: 56;
     width: auto;
+  }
+  .eng-card {
+    max-height: 68svh;
   }
   .sec-incident {
     right: 6%;
