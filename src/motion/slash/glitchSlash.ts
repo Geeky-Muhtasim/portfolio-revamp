@@ -40,8 +40,11 @@ function snapshot(from: HTMLElement): HTMLElement {
   frame.inert = true;
   const world = document.querySelector(".world");
   if (world) frame.append(world.cloneNode(true));
-  const rect = from.getBoundingClientRect();
-  const scene = from.cloneNode(true) as HTMLElement;
+  // In a tall scroll scene what is on screen is its sticky stage, not the top of the section.
+  const stage = from.querySelector<HTMLElement>(".stage");
+  const visible = stage && getComputedStyle(stage).position === "sticky" ? stage : from;
+  const rect = visible.getBoundingClientRect();
+  const scene = visible.cloneNode(true) as HTMLElement;
   scene.removeAttribute("id");
   scene.style.cssText = `position:absolute;left:${rect.left}px;top:${rect.top}px;width:${rect.width}px;height:${rect.height}px;margin:0`;
   frame.append(scene);
