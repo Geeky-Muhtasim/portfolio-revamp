@@ -863,9 +863,28 @@ html.scrub .road-window {
   font-family: var(--font-mono);
   text-align: center;
 }
+/*
+ * While scrubbing, the plate is a fixed frame: the title stays put and the
+ * names roll through a window beneath it, cut off by a hard rule at the
+ * top, like credits passing behind the title card.
+ */
 html.scrub .credits-plate {
-  max-height: calc(100svh - 8rem);
+  display: flex;
+  flex-direction: column;
+  height: calc(100svh - 8rem);
   overflow: hidden;
+}
+html.scrub .credits-window {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin-top: 1.2rem;
+  border-top: 2px solid var(--crt-scanline);
+  /* clip, not hidden: focusing a name must not scroll the window under the roll. */
+  overflow: clip;
+}
+html.scrub .credits {
+  margin-top: 0;
 }
 .credits-note {
   margin: 1.2rem 0 0;

@@ -203,12 +203,22 @@ export async function initScenes({ lenis, reduced }: { lenis: Lenis | null; redu
     });
   }
 
-  /* Crew: the credits roll up the screen. */
+  /*
+   * Crew: the credits roll up through their window. They enter from its
+   * bottom edge and stop with the last name in the middle, so every name
+   * can be read and hovered; they never pass over the title above.
+   */
   const crew = $("#crew .track");
   if (crew) {
     const list = $(".credits", crew)!;
+    const view = $(".credits-window", crew)!;
+    const last = list.lastElementChild as HTMLElement | null;
     const tl = gsap.timeline();
-    tl.fromTo(list, { y: () => window.innerHeight * 0.45 }, { y: () => -list.offsetHeight * 0.55, duration: 1, ease: "none" });
+    tl.fromTo(
+      list,
+      { y: () => view.clientHeight * 0.85 },
+      { y: () => view.clientHeight * 0.5 - ((last?.offsetTop ?? list.offsetHeight) + (last?.offsetHeight ?? 0) / 2), duration: 1, ease: "none" },
+    );
     scrub(crew, tl);
   }
 
