@@ -131,7 +131,8 @@ export function CelWorld() {
         <g stroke="var(--outline)" fill="none" strokeLinecap="round">
           <path d="M70 900 V120" strokeWidth="16" />
           <path d="M18 170 H124 M30 215 H112" strokeWidth="9" />
-          <path d="M18 170 Q400 260 900 230 M124 170 Q500 290 900 300 M30 215 Q420 330 900 340" strokeWidth="3" />
+          {/* The wires run to the next pole, far off the right edge, so they cross the whole sky at any width. */}
+          <path d="M18 170 Q2200 420 5200 150 M124 170 Q2300 500 5200 190 M30 215 Q2250 560 5200 230" strokeWidth="3" />
         </g>
       </svg>
     </div>
