@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import { getPortfolio } from "@/content/load";
+import { jsonLdScript } from "@/content/seo";
 import { VowScene } from "@/scenes/02-vow/VowScene";
 import { BladesScene } from "@/scenes/03-blades/BladesScene";
 import { ResearchScene } from "@/scenes/04-research/ResearchScene";
@@ -20,6 +22,8 @@ import { CelWorld } from "@/world/CelWorld";
  */
 const BEFORE_PAINT = `history.scrollRestoration="manual";var d=document.documentElement;d.dataset.phase="threshold";try{if(sessionStorage.getItem("three-blades:entered"))d.dataset.phase="returning"}catch(e){}`;
 
+export const metadata: Metadata = { alternates: { canonical: "/" } };
+
 export default function Home() {
   const portfolio = getPortfolio();
   const { profile } = portfolio;
@@ -27,6 +31,8 @@ export default function Home() {
   return (
     <>
       <script dangerouslySetInnerHTML={{ __html: BEFORE_PAINT }} />
+      {/* Who this site is about, for search engines: built from portfolio.md (src/content/seo.ts). */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(portfolio) }} />
       <noscript>
         <style>{`.threshold{display:none}`}</style>
       </noscript>

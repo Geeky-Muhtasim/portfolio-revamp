@@ -35,7 +35,12 @@ const RETIRED = [
 const ALLOW = [
   { paths: ["content/portfolio.md", "out/plain"], word: "passionate", why: "Research Statement kept verbatim at the owner's request" },
   { paths: ["content/portfolio.md", "out/plain"], word: "cutting-edge", why: "Research Statement kept verbatim at the owner's request" },
-  { paths: ["content/portfolio.md", "out/plain"], word: "innovative", why: "proper noun: the BEA workshop's official name" },
+  {
+    // Also in the home page's JSON-LD (and its serialised payloads), where the venue is a publication's name.
+    paths: ["content/portfolio.md", "out/plain", "out/index.", "out/__next."],
+    word: "innovative",
+    why: "proper noun: the BEA workshop's official name",
+  },
   { paths: ["src/config/site.test.ts"], word: "*", why: "the voice-rule test lists banned words to forbid them" },
   { paths: ["scripts/check-copy.mjs"], word: "*", why: "this gate" },
   { paths: ["out/_next/static/chunks/"], word: "*", why: "minified third-party library internals, not copy" },

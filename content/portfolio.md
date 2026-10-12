@@ -6,7 +6,7 @@ title: AI-Enabled Software Engineer & NLP Researcher
 tagline: Seeking MSc/PhD opportunities in NLP, Language Modeling, Mechanistic Interpretability, AI in Education, AI in Cybersecurity, and HCI.
 location: Dhaka, Bangladesh
 email: sho25100@gmail.com
-website: https://3blade-dev.vercel.app
+website: https://www.shochcho.dev
 socials:
   github: https://github.com/Geeky-Muhtasim
   linkedin: https://linkedin.com/in/mtibteda
