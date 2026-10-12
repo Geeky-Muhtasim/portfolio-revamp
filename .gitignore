@@ -16,3 +16,8 @@ coverage/
 
 # design documents (kept out of version control)
 docs/
+
+# promo video tooling (local only)
+.venv/
+promo/build/
+promo/out/
